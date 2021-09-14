@@ -15,7 +15,12 @@ repositories {
 kotlin {
     jvm()
     js(IR) {
-        browser()
+        browser {
+//            webpackTask {
+//                output.libraryTarget = "commonjs"
+//            }
+        }
+//        useCommonJs()
         binaries.executable()
     }
     sourceSets {
@@ -29,6 +34,14 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+            }
+        }
+
+        val jsMain by getting {
+            dependencies {
+//                implementation("ch.viseon.threejs:wrapper:126.0.0")
+//                implementation(npm("three", "0.126.0"))
+                implementation(npm("three", "0.132.2"))
             }
         }
     }
