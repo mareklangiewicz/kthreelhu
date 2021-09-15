@@ -1,12 +1,16 @@
 package pl.mareklangiewicz.kthreelhu
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.common.material.Button
-import org.jetbrains.compose.common.material.Slider
 import org.jetbrains.compose.common.material.Text
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.Style
@@ -17,6 +21,7 @@ import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Window
+import org.w3c.dom.events.KeyboardEvent
 import three.js.AmbientLight
 import three.js.BoxGeometry
 import three.js.Clock
@@ -32,14 +37,44 @@ import three.js.WebGLRenderer
 fun main() {
     val root = document.getElementById("root") as HTMLElement
 
+    val keyDownS = MutableSharedFlow<KeyboardEvent>(extraBufferCapacity = 1, onBufferOverflow = DROP_OLDEST)
+    window.onkeydown = { keyDownS.tryEmit(it) }
+
     renderComposable(root = root) {
-        var camPosX by mutableStateOf(0.0f)
+        var camPosX by remember { mutableStateOf(0.0f) }
+        var camPosY by remember { mutableStateOf(0.0f) }
+        var camPosZ by remember { mutableStateOf(10.0f) }
+        LaunchedEffect(camPosX) { cube?.camera?.position?.x = camPosX }
+        LaunchedEffect(camPosY) { cube?.camera?.position?.y = camPosY }
+        LaunchedEffect(camPosZ) { cube?.camera?.position?.z = camPosZ }
+        LaunchedEffect(Unit) {
+            keyDownS.collect {
+                console.log("collect: $it")
+                when (it.key) {
+                    "a" -> camPosX += 0.1f
+                    "d" -> camPosX -= 0.1f
+                    "w" -> camPosY -= 0.1f
+                    "s" -> camPosY += 0.1f
+                }
+            }
+        }
         Style(Styles)
         H2 { Text("Kthreelhu JS") }
-        Div {
+        Text("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}")
+        Div(attrs = {
+            onWheel {
+                it.preventDefault()
+                camPosZ += it.deltaY.toFloat() / 100
+            }
+            onMouseMove {
+                if (it.buttons.toInt() != 0) {
+                    camPosX = - it.offsetX.toFloat() / 100 + 5
+                    camPosY = it.offsetY.toFloat() / 100 - 5
+                }
+            }
+        }) {
             Button(onClick = ::threeExperiment) { Text("some button") }
             Br()
-            Slider(camPosX, onValueChange = { camPosX = it; cube?.camera?.position?.x = it * 10 - 5 }, steps = 20)
             Div(attrs = { id("myscene") })
         }
     }
@@ -51,6 +86,8 @@ fun threeExperiment() {
     cube = Cube()
     cube?.animate()
 }
+
+fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
 
 val Window.aspectRatio get() = innerWidth.toDouble() / innerHeight
 
