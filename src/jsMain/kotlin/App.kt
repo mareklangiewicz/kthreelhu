@@ -1,5 +1,6 @@
 package pl.mareklangiewicz.kthreelhu
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.await
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -21,6 +23,7 @@ import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Window
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import three.js.AmbientLight
 import three.js.BoxGeometry
@@ -32,24 +35,25 @@ import three.js.MeshPhongMaterial
 import three.js.PerspectiveCamera
 import three.js.Scene
 import three.js.WebGLRenderer
+import kotlin.js.Json
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 fun main() {
     val root = document.getElementById("root") as HTMLElement
 
     val keyDownS = MutableSharedFlow<KeyboardEvent>(extraBufferCapacity = 1, onBufferOverflow = DROP_OLDEST)
-    window.onkeydown = { keyDownS.tryEmit(it) }
 
     renderComposable(root = root) {
         var camPosX by remember { mutableStateOf(0.0f) }
         var camPosY by remember { mutableStateOf(0.0f) }
         var camPosZ by remember { mutableStateOf(10.0f) }
-        LaunchedEffect(camPosX) { cube?.camera?.position?.x = camPosX }
-        LaunchedEffect(camPosY) { cube?.camera?.position?.y = camPosY }
-        LaunchedEffect(camPosZ) { cube?.camera?.position?.z = camPosZ }
+
+        LaunchedEffect(Unit) { processBraxSystemJsonFile("./walking_ant.json") }
+        LaunchedEffect(camPosX) { model?.camera?.position?.x = camPosX }
+        LaunchedEffect(camPosY) { model?.camera?.position?.y = camPosY }
+        LaunchedEffect(camPosZ) { model?.camera?.position?.z = camPosZ }
         LaunchedEffect(Unit) {
             keyDownS.collect {
-                console.log("collect: $it")
                 when (it.key) {
                     "a" -> camPosX += 0.1f
                     "d" -> camPosX -= 0.1f
@@ -57,6 +61,11 @@ fun main() {
                     "s" -> camPosY += 0.1f
                 }
             }
+        }
+        DisposableEffect(Unit) {
+            val callback: (Event) -> Unit = { keyDownS.tryEmit(it as KeyboardEvent) }
+            window.addEventListener("keydown", callback)
+            onDispose { window.removeEventListener("keydown", callback) }
         }
         Style(Styles)
         H2 { Text("Kthreelhu JS") }
@@ -80,11 +89,42 @@ fun main() {
     }
 }
 
-var cube: Cube? = null
+@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+private suspend fun processBraxSystemJsonFile(path: String) {
+    val myjson = window
+        .fetch(path).await()
+        .json().await() as Json
+    console.log(myjson)
+
+    val myconfig = myjson["config"] as Json
+    console.log(myconfig)
+
+    val mydt = myconfig["dt"] as Number
+    console.log(mydt)
+}
+
+external interface BraxSystem {
+    val config: BraxConfig
+    val pos: Array<Array<Number>>
+    val rot: Array<Array<Number>>
+}
+
+external interface BraxConfig {
+    val bodies: Array<BraxBody>
+}
+
+external interface BraxBody {
+    val name: String
+//    val colliders: Array<BraxCollider>
+//    val inertia: BraxXYZ
+    // TODO NOW: continue and use it
+}
+
+var model: MyThreeSceneModel? = null
 
 fun threeExperiment() {
-    cube = Cube()
-    cube?.animate()
+    model = MyThreeSceneModel()
+    model?.animate()
 }
 
 fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
@@ -95,7 +135,7 @@ val Window.aspectRatio get() = innerWidth.toDouble() / innerHeight
 operator fun Number.minus(other: Double) = toDouble() - other
 operator fun Number.plus(other: Double) = toDouble() + other
 
-class Cube {
+class MyThreeSceneModel {
     private val clock = Clock()
     val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 1000).apply {
         position.z = 5
