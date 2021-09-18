@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.await
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -22,7 +21,6 @@ import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.Window
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import three.js.AmbientLight
@@ -35,7 +33,6 @@ import three.js.MeshPhongMaterial
 import three.js.PerspectiveCamera
 import three.js.Scene
 import three.js.WebGLRenderer
-import kotlin.js.Json
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 fun main() {
@@ -89,51 +86,12 @@ fun main() {
     }
 }
 
-@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-private suspend fun processBraxSystemJsonFile(path: String) {
-    val myjson = window
-        .fetch(path).await()
-        .json().await() as Json
-    console.log(myjson)
-
-    val myconfig = myjson["config"] as Json
-    console.log(myconfig)
-
-    val mydt = myconfig["dt"] as Number
-    console.log(mydt)
-}
-
-external interface BraxSystem {
-    val config: BraxConfig
-    val pos: Array<Array<Number>>
-    val rot: Array<Array<Number>>
-}
-
-external interface BraxConfig {
-    val bodies: Array<BraxBody>
-}
-
-external interface BraxBody {
-    val name: String
-//    val colliders: Array<BraxCollider>
-//    val inertia: BraxXYZ
-    // TODO NOW: continue and use it
-}
-
 var model: MyThreeSceneModel? = null
 
 fun threeExperiment() {
     model = MyThreeSceneModel()
     model?.animate()
 }
-
-fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
-
-val Window.aspectRatio get() = innerWidth.toDouble() / innerHeight
-
-
-operator fun Number.minus(other: Double) = toDouble() - other
-operator fun Number.plus(other: Double) = toDouble() + other
 
 class MyThreeSceneModel {
     private val clock = Clock()
