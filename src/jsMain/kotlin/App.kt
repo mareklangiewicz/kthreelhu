@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.common.material.Button
@@ -45,7 +46,15 @@ fun main() {
         var camPosY by remember { mutableStateOf(0.0f) }
         var camPosZ by remember { mutableStateOf(10.0f) }
 
-        LaunchedEffect(Unit) { processBraxSystemJsonFile("./walking_ant.json") }
+        LaunchedEffect(Unit) {
+            val scene = processBraxSystemJsonFile("./walking_ant.json").apply {
+                add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
+                add(AmbientLight(0x404040, 1))
+            }
+            delay(10000)
+            console.log("experiment start!")
+            model?.scene = scene
+        }
         LaunchedEffect(camPosX) { model?.camera?.position?.x = camPosX }
         LaunchedEffect(camPosY) { model?.camera?.position?.y = camPosY }
         LaunchedEffect(camPosZ) { model?.camera?.position?.z = camPosZ }
@@ -108,7 +117,7 @@ class MyThreeSceneModel {
     private val cube1 = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x0000ff) })
     private val cube2 = Mesh(BoxGeometry(1, 2, 0.5), MeshPhongMaterial().apply { color = Color(0xff00ff) })
 
-    private val scene = Scene().apply {
+    var scene = Scene().apply {
         add(cube1)
         add(cube2)
         add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
