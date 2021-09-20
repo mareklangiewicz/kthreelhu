@@ -21,20 +21,15 @@ import kotlin.math.PI
 import kotlin.math.sqrt
 
 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-suspend fun processBraxSystemJsonFile(path: String): Scene {
-    val mysystem = window
-        .fetch(path).await()
-        .json().await() as BraxSystem
-    console.log(mysystem)
-    return createScene(mysystem)
-}
-
+suspend fun parseJsonBraxSystem(path: String) = window.fetch(path).await().json().await() as BraxSystem
 
 val BraxBasicMaterial = MeshPhongMaterial().apply { color = Color(0x665544) }
 val BraxTargetMaterial = MeshPhongMaterial().apply { color = Color(0xff2222) }
 
-fun createScene(system: BraxSystem): Scene {
-    val scene = Scene()
+fun BraxSystem.toGroup() = Group().apply { addBraxSystem(this@toGroup) }
+fun BraxSystem.toScene() = Scene().apply { addBraxSystem(this@toScene) }
+
+fun Object3D.addBraxSystem(system: BraxSystem) {
     system.config.bodies.forEach { body ->
         val parent = Group()
         parent.name = body.name.replace('/', '_')  // sanitize node name
@@ -59,9 +54,8 @@ fun createScene(system: BraxSystem): Scene {
             collider.position?.run { child.position = toVector3() }
             parent.add(child)
         }
-        scene.add(parent)
+        add(parent)
     }
-    return scene
 }
 
 fun BraxCollider.toObject3D() =

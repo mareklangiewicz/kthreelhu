@@ -5,13 +5,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.common.material.Button
 import org.jetbrains.compose.common.material.Text
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
@@ -35,8 +36,13 @@ import three.js.PerspectiveCamera
 import three.js.Scene
 import three.js.WebGLRenderer
 
+// TODO_NOW: try CompositionLocal to manage current Object3D objects in composition tree
+// (for top level composables like "Scene" or "Renderer" use explicit receiver like "RendererScope" instead of additional CompositionLocal)
+// (or maybe use explicit scopes for Object3D contexts too? so we don't overuse CompositionLocals? - try both approaches)
+
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 fun main() {
+    console.log("Kotlin version: ${KotlinVersion.CURRENT}")
     val root = document.getElementById("root") as HTMLElement
 
     val keyDownS = MutableSharedFlow<KeyboardEvent>(extraBufferCapacity = 1, onBufferOverflow = DROP_OLDEST)
@@ -46,15 +52,7 @@ fun main() {
         var camPosY by remember { mutableStateOf(0.0f) }
         var camPosZ by remember { mutableStateOf(10.0f) }
 
-        LaunchedEffect(Unit) {
-            val scene = processBraxSystemJsonFile("./walking_ant.json").apply {
-                add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
-                add(AmbientLight(0x404040, 1))
-            }
-            delay(10000)
-            console.log("experiment start!")
-            model?.scene = scene
-        }
+        LaunchedEffect(Unit) { threeExperiment1() }
         LaunchedEffect(camPosX) { model?.camera?.position?.x = camPosX }
         LaunchedEffect(camPosY) { model?.camera?.position?.y = camPosY }
         LaunchedEffect(camPosZ) { model?.camera?.position?.z = camPosZ }
@@ -88,7 +86,8 @@ fun main() {
                 }
             }
         }) {
-            Button(onClick = ::threeExperiment) { Text("some button") }
+            val scope = rememberCoroutineScope()
+            Button(onClick = { scope.launch { threeExperiment2() }}) { Text("threeExperiment2") }
             Br()
             Div(attrs = { id("myscene") })
         }
@@ -97,9 +96,14 @@ fun main() {
 
 var model: MyThreeSceneModel? = null
 
-fun threeExperiment() {
+fun threeExperiment1() {
     model = MyThreeSceneModel()
     model?.animate()
+}
+
+suspend fun threeExperiment2() {
+    val system = parseJsonBraxSystem("./walking_ant.json")
+    model?.scene?.addBraxSystem(system)
 }
 
 class MyThreeSceneModel {
