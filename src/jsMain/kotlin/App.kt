@@ -118,12 +118,13 @@ class MyThreeSceneModel {
         setPixelRatio(window.devicePixelRatio)
     }
 
+    // phong material reacts to lights, but basic material does not
     private val cube1 = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x0000ff) })
     private val cube2 = Mesh(BoxGeometry(1, 2, 0.5), MeshPhongMaterial().apply { color = Color(0xff00ff) })
 
     var scene = Scene().apply {
-        add(cube1)
-        add(cube2)
+        add(cube1.withGridHelper())
+        add(cube2.withAxesHelper().withGridHelper())
         add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
         add(AmbientLight(0x404040, 1))
     }
