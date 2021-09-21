@@ -104,6 +104,8 @@ fun threeExperiment1() {
 suspend fun threeExperiment2() {
     val system = parseJsonBraxSystem("./walking_ant.json")
     model?.scene?.addBraxSystem(system)
+    // TODO: trajectory/animation stuff (based on brax repo)
+    // TODO: review all brax stuff after something is moving..
 }
 
 class MyThreeSceneModel {

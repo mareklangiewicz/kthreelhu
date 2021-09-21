@@ -21,13 +21,14 @@ operator fun Number.times(that: Int) = toDouble() * that
 operator fun Number.div(that: Int) = toDouble() / that
 operator fun Double.div(that: Number) = this / that.toDouble()
 
-fun Object3D.withAxesHelper(depthTest: Boolean = false, renderOrder: Int = 2) = apply {
-    add(AxesHelper().apply { material.depthTest = depthTest; this.renderOrder = renderOrder })
-}
 
 private val gridColor1 = Color(0xffffff)
 private val gridColor2 = Color(0x888888)
 
 fun Object3D.withGridHelper(units: Int = 10, depthTest: Boolean = false, renderOrder: Int = 1) = apply {
     add(GridHelper(units, units, gridColor1, gridColor2).apply { this.material.depthTest = depthTest; this.renderOrder = renderOrder })
+}
+
+fun Object3D.withAxesHelper(depthTest: Boolean = false, renderOrder: Int = 2) = apply {
+    add(AxesHelper().apply { material.depthTest = depthTest; this.renderOrder = renderOrder })
 }
