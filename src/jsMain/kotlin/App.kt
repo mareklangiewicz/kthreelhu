@@ -1,17 +1,9 @@
+@file:OptIn(ExperimentalComposeWebWidgetsApi::class)
 package pl.mareklangiewicz.kthreelhu
 
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.common.material.Button
 import org.jetbrains.compose.common.material.Text
@@ -23,74 +15,67 @@ import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.Event
-import org.w3c.dom.events.KeyboardEvent
-import three.js.AmbientLight
-import three.js.BoxGeometry
-import three.js.Clock
-import three.js.Color
-import three.js.DirectionalLight
-import three.js.Mesh
-import three.js.MeshPhongMaterial
-import three.js.PerspectiveCamera
-import three.js.Scene
-import three.js.WebGLRenderer
+import pl.mareklangiewicz.widgets.CmnDText
+import pl.mareklangiewicz.widgets.kim.Kim
+import pl.mareklangiewicz.widgets.kim.KimKeyDownEffect
+import three.js.*
 
 // TODO_NOW: try CompositionLocal to manage current Object3D objects in composition tree
 // (for top level composables like "Scene" or "Renderer" use explicit receiver like "RendererScope" instead of additional CompositionLocal)
 // (or maybe use explicit scopes for Object3D contexts too? so we don't overuse CompositionLocals? - try both approaches)
 
-@OptIn(ExperimentalComposeWebWidgetsApi::class)
 fun main() {
     console.log("Kotlin version: ${KotlinVersion.CURRENT}")
     val root = document.getElementById("root") as HTMLElement
+    renderComposable(root = root) { AppJs() }
+}
 
-    val keyDownS = MutableSharedFlow<KeyboardEvent>(extraBufferCapacity = 1, onBufferOverflow = DROP_OLDEST)
+@Composable fun AppJs() {
+    Style(Styles)
+    Kim.Area {
+        val kim = Kim.kim
+        KimKeyDownEffect(kim, window)
+        kim.Cmd("q") { window.close() }
+        Kim.Frame { AppContent() }
+    }
+}
 
-    renderComposable(root = root) {
-        var camPosX by remember { mutableStateOf(0.0f) }
-        var camPosY by remember { mutableStateOf(0.0f) }
-        var camPosZ by remember { mutableStateOf(10.0f) }
+@Composable private fun AppContent() {
+    var camPosX by remember { mutableStateOf(0.0f) }
+    var camPosY by remember { mutableStateOf(0.0f) }
+    var camPosZ by remember { mutableStateOf(10.0f) }
 
-        LaunchedEffect(Unit) { threeExperiment1() }
-        LaunchedEffect(camPosX) { model?.camera?.position?.x = camPosX }
-        LaunchedEffect(camPosY) { model?.camera?.position?.y = camPosY }
-        LaunchedEffect(camPosZ) { model?.camera?.position?.z = camPosZ }
-        LaunchedEffect(Unit) {
-            keyDownS.collect {
-                when (it.key) {
-                    "a" -> camPosX += 0.1f
-                    "d" -> camPosX -= 0.1f
-                    "w" -> camPosY -= 0.1f
-                    "s" -> camPosY += 0.1f
-                }
+    val kim = Kim.kim
+    kim.Cmd("h") { camPosX += 0.1f }
+    kim.Cmd("l") { camPosX -= 0.1f }
+    kim.Cmd("k") { camPosY -= 0.1f }
+    kim.Cmd("j") { camPosY += 0.1f }
+    kim.Cmd("i") { camPosZ -= 0.1f }
+    kim.Cmd("o") { camPosZ += 0.1f }
+
+    LaunchedEffect(Unit) { threeExperiment1() }
+    LaunchedEffect(camPosX) { model?.camera?.position?.x = camPosX }
+    LaunchedEffect(camPosY) { model?.camera?.position?.y = camPosY }
+    LaunchedEffect(camPosZ) { model?.camera?.position?.z = camPosZ }
+
+    H2 { Text("Kthreelhu JS") }
+    CmnDText("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}", header = true)
+    Div(attrs = {
+        onWheel {
+            it.preventDefault()
+            camPosZ += it.deltaY.toFloat() / 100
+        }
+        onMouseMove {
+            if (it.buttons.toInt() != 0) {
+                camPosX = - it.offsetX.toFloat() / 100 + 5
+                camPosY = it.offsetY.toFloat() / 100 - 5
             }
         }
-        DisposableEffect(Unit) {
-            val callback: (Event) -> Unit = { keyDownS.tryEmit(it as KeyboardEvent) }
-            window.addEventListener("keydown", callback)
-            onDispose { window.removeEventListener("keydown", callback) }
-        }
-        Style(Styles)
-        H2 { Text("Kthreelhu JS") }
-        Text("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}")
-        Div(attrs = {
-            onWheel {
-                it.preventDefault()
-                camPosZ += it.deltaY.toFloat() / 100
-            }
-            onMouseMove {
-                if (it.buttons.toInt() != 0) {
-                    camPosX = - it.offsetX.toFloat() / 100 + 5
-                    camPosY = it.offsetY.toFloat() / 100 - 5
-                }
-            }
-        }) {
-            val scope = rememberCoroutineScope()
-            Button(onClick = { scope.launch { threeExperiment2() }}) { Text("threeExperiment2") }
-            Br()
-            Div(attrs = { id("myscene") })
-        }
+    }) {
+        val scope = rememberCoroutineScope()
+        Button(onClick = { scope.launch { threeExperiment2() }}) { Text("threeExperiment2") }
+        Br()
+        Div(attrs = { id("myscene") })
     }
 }
 
