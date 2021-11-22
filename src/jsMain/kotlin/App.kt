@@ -59,7 +59,7 @@ fun main() {
     LaunchedEffect(camPosZ) { model?.camera?.position?.z = camPosZ }
 
     H2 { Text("Kthreelhu JS") }
-    CmnDText("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}", header = true)
+    CmnDText("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}", mono = true)
     Div(attrs = {
         onWheel {
             it.preventDefault()
