@@ -41,11 +41,14 @@ fun main() {
 }
 
 @Composable private fun AppContent() {
+    val scope = rememberCoroutineScope()
     var camPosX by remember { mutableStateOf(0.0f) }
     var camPosY by remember { mutableStateOf(0.0f) }
     var camPosZ by remember { mutableStateOf(10.0f) }
 
     val kim = Kim.kim
+    kim.Cmd("1") { scope.launch { threeExperiment1() } }
+    kim.Cmd("2") { scope.launch { threeExperiment2() } }
     kim.Cmd("h") { camPosX += 0.1f }
     kim.Cmd("l") { camPosX -= 0.1f }
     kim.Cmd("k") { camPosY -= 0.1f }
@@ -53,7 +56,6 @@ fun main() {
     kim.Cmd("i") { camPosZ -= 0.1f }
     kim.Cmd("o") { camPosZ += 0.1f }
 
-    LaunchedEffect(Unit) { threeExperiment1() }
     LaunchedEffect(camPosX) { model?.camera?.position?.x = camPosX }
     LaunchedEffect(camPosY) { model?.camera?.position?.y = camPosY }
     LaunchedEffect(camPosZ) { model?.camera?.position?.z = camPosZ }
@@ -72,9 +74,6 @@ fun main() {
             }
         }
     }) {
-        val scope = rememberCoroutineScope()
-        Button(onClick = { scope.launch { threeExperiment2() }}) { Text("threeExperiment2") }
-        Br()
         Div(attrs = { id("myscene") })
     }
 }
