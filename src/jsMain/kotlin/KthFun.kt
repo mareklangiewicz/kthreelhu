@@ -59,13 +59,11 @@ import three.js.*
 
 
 @Composable fun KthCube(
-    width: Double = 1.0,
-    height: Double = 1.0,
-    depth: Double = 1.0,
+    size: XYZ = 1.0 xy 1.0 yz 1.0,
     color: Color = Color(0x808080),
     content: @Composable Mesh<BoxGeometry, MeshPhongMaterial>.() -> Unit = {}
 ) {
-    O3D({ cube(width, height, depth) }) { material.color = color; content() }
+    O3D({ cube(size) }) { material.color = color; content() }
 }
 
 @Composable fun KthGridHelper(
@@ -95,8 +93,7 @@ import three.js.*
     }
 }
 
-private fun cube(width: Double, height: Double, depth: Double) = cube(Vector3(width, height, depth))
-private fun cube(size: Vector3) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
+private fun cube(size: XYZ) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
 
 private val LocalObject3D = compositionLocalOf<Object3D> { error("No Object3D provided - start with fun KthScene") }
 private val LocalScene = staticCompositionLocalOf<Scene> { error("No Scene provided - use fun KthScene") }

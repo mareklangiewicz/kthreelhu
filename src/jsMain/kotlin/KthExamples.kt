@@ -3,17 +3,15 @@ package pl.mareklangiewicz.kthreelhu
 import androidx.compose.runtime.*
 import kotlinx.browser.window
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
-import org.jetbrains.compose.web.dom.Text
 import pl.mareklangiewicz.widgets.CmnDText
 import three.js.*
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.random.Random
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
-@Composable fun KthExamples(camPosX: Double, camPosY: Double, camPosZ: Double) {
+@Composable fun KthExamples(camPos: XYZ) {
     KthCamera {
-        position.set(camPosX, camPosY, camPosZ)
+        position.set(camPos)
         CmnDText("Example 1", mono = true)
         KthScene {
             Kthreelhu()
@@ -30,7 +28,7 @@ import kotlin.random.Random
 }
 
 @Composable fun O3DExampleLights() {
-    O3D({ DirectionalLight(0xffffff, 1) }) { position.set(-1, 2, 4) }
+    O3D({ DirectionalLight(0xffffff, 1) }) { position.set(-1.0 xy 2.0 yz 4.0) }
         // TODO: check position = Vect... (probably doesn't work - but why??)
     O3D({ AmbientLight(0x404040, 1) })
 }
@@ -41,9 +39,9 @@ import kotlin.random.Random
         material.color = remember { Color(0x0000ff) }
         val timeMs by window.produceTime()
         val t = timeMs / 1000
-        position.set(sin(t) * 4, cos(t * 1.4) * 7, sin(t * 5.7 + 2))
+        position.set(sin(t) * 4 xy cos(t * 1.4) * 7 yz sin(t * 5.7 + 2))
     }
-    KthCube(1.0, 2.0, 0.5) {
+    KthCube(1.0 xy 2.0 yz 0.5) {
         KthGridHelper()
         KthAxesHelper()
         material.color = remember { Color(0xff00ff) }
@@ -52,15 +50,13 @@ import kotlin.random.Random
 
 @Composable fun O3DExample2() {
     G3D {
-        window.onEachFrame { rotation.x = it / 100000 }
+        window.onEachFrame { rotation.x = it / 50000 }
 
         val timeMs by window.produceTime()
-        for (x in 1..10) for (y in 1..10) KthCube(
-            0.5, 0.5, 3.0 + Random.nextDouble(3.0),
-            Color(Random.nextInt(0xffffff))
-        ) {
-            position.set(x.toDouble() * 0.7, y.toDouble() * 0.7, Random.nextDouble(timeMs / 400000 + 0.00001))
-        }
+        for (x in 1..10) for (y in 1..10)
+            KthCube(0.5 xy 0.5 yz (3.0 rnd 6.0), Color(0xffffff.max)) {
+                position.set(x.dbl * 0.7 xy y.dbl * 0.7 yz (0.00001 + timeMs).max / 400000)
+            }
     }
 }
 

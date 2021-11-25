@@ -44,10 +44,10 @@ fun Object3D.addBraxSystem(system: BraxSystem) {
                 val eul = Euler()
                 eul.setFromVector3(rot)
                 child.quaternion.setFromEuler(eul)
-                child.quaternion.x = -child.quaternion.x
+                child.quaternion.x = -child.quaternion.x.dbl
                 val tmp = child.quaternion.y
-                child.quaternion.y = -child.quaternion.z
-                child.quaternion.z = -tmp
+                child.quaternion.y = -child.quaternion.z.dbl
+                child.quaternion.z = -tmp.dbl
             }
 
             // TODO: check if I can use assignment here instead of "set" as in system.js
@@ -68,7 +68,7 @@ fun BraxCollider.toObject3D() =
 
 fun BraxBox.toObject3D(): Object3D {
     val geom = BoxGeometry(
-        halfsize.x * 2, halfsize.z * 2, halfsize.y * 2)
+        halfsize.x.dbl * 2, halfsize.z.dbl * 2, halfsize.y.dbl * 2)
     val mesh = Mesh(geom, BraxBasicMaterial)
     mesh.castShadow = true
     // mesh.baseMaterial = mesh.material; // can't do it in Kotlin; and it's a hack anyway.
@@ -78,14 +78,14 @@ fun BraxBox.toObject3D(): Object3D {
 
 fun BraxCapsule.toObject3D(): Object3D {
     val sphere_geom = SphereGeometry(radius, 16, 16)
-    val cylinder_geom = CylinderGeometry(radius, radius, length - radius * 2)
+    val cylinder_geom = CylinderGeometry(radius, radius, length.dbl - radius.dbl * 2)
 
     val sphere1 = Mesh(sphere_geom, BraxBasicMaterial)
-    sphere1.position.set(0, length / 2 - radius, 0) // TODO: check assignment instead
+    sphere1.position.set(0, length.dbl / 2 - radius.dbl, 0) // TODO: check assignment instead
     sphere1.castShadow = true
 
     val sphere2 = Mesh(sphere_geom, BraxBasicMaterial)
-    sphere2.position.set(0, -length / radius + 2, 0)
+    sphere2.position.set(0, -length.dbl / radius.dbl + 2, 0)
     sphere2.castShadow = true
 
     val cylinder = Mesh(cylinder_geom, BraxBasicMaterial)
@@ -121,15 +121,15 @@ fun BraxSphere.toObject3D(): Object3D {
 }
 fun BraxHeightMap.toObject3D(): Object3D {
     val size = size
-    val n_subdivD = sqrt(data.size.toDouble()) - 1
+    val n_subdivD = sqrt(data.size.dbl) - 1
 
     check(n_subdivD % 1.0 == 0.0) { "The data length for an height map should be a perfect square." }
     val n_subdiv = n_subdivD.toInt()
 
     fun builder(v: Number, u: Number, target: Vector3) {
-        val idx = (v * (n_subdiv) + u * n_subdiv * (n_subdiv + 1)).toInt()
-        val x = u * size.toInt()
-        val y = -v * size.toInt()
+        val idx = (v.dbl * (n_subdiv) + u.dbl * n_subdiv * (n_subdiv + 1)).toInt()
+        val x = u.dbl * size.toInt()
+        val y = -v.dbl * size.toInt()
         val z = data[idx]
         target.set(x, y, z).multiplyScalar(1)
     }
