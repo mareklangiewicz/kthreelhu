@@ -1,15 +1,15 @@
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import three.js.*
 
+@OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun KthExample1(camPosX: Double, camPosY: Double, camPosZ: Double) {
-    KthRenderer {
+    KthCamera {
+        position.set(camPosX, camPosY, camPosZ)
         KthScene {
-            KthCamera {
-                position.set(camPosX, camPosY, camPosZ)
-                KthDivCanvas()
-            }
+            Kthreelhu()
             O3DExample1()
         }
     }

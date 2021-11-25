@@ -26,16 +26,10 @@ import three.js.*
     CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
 }
 
-@Composable fun KthRenderer(content: @Composable () -> Unit) {
-    val renderer = remember { WebGLRenderer() }
-    CompositionLocalProvider(LocalRenderer provides renderer) { content() }
-}
-
-@Composable fun KthDivCanvas(enabled: Boolean = true, content: @Composable () -> Unit = {}) {
-    content()
+@Composable fun Kthreelhu(enabled: Boolean = true) {
     val scene = LocalScene.current
     val camera = LocalCamera.current
-    val renderer = LocalRenderer.current
+    val renderer = remember { WebGLRenderer() }
     var handleId: Int
     fun animate() {
         renderer.render(scene, camera)
@@ -75,4 +69,3 @@ import three.js.*
 private val LocalObject3D = compositionLocalOf<Object3D> { error("No Object3D provided - start with fun KthScene") }
 private val LocalScene = staticCompositionLocalOf<Scene> { error("No Scene provided - use fun KthScene") }
 private val LocalCamera = staticCompositionLocalOf<Camera> { error("No Camera provided - use fun KthCamera") }
-private val LocalRenderer = staticCompositionLocalOf<WebGLRenderer> { error("No Renderer provided - use fun KthRenderer") }
