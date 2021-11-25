@@ -1,8 +1,6 @@
 package pl.mareklangiewicz.kthreelhu
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import kotlinx.browser.window
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.dom.Text
@@ -53,12 +51,16 @@ import kotlin.random.Random
 }
 
 @Composable fun O3DExample2() {
-    val timeMs by window.produceTime()
     G3D {
+        window.onEachFrame { rotation.x = it / 100000 }
+
+        val timeMs by window.produceTime()
         for (x in 1..10) for (y in 1..10) KthCube(
             0.5, 0.5, 3.0 + Random.nextDouble(3.0),
             Color(Random.nextInt(0xffffff))
-        ) { position.set(x.toDouble() * 0.7, y.toDouble() * 0.7, Random.nextDouble(timeMs / 400000 + 0.00001)) }
+        ) {
+            position.set(x.toDouble() * 0.7, y.toDouble() * 0.7, Random.nextDouble(timeMs / 400000 + 0.00001))
+        }
     }
 }
 

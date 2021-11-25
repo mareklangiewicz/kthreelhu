@@ -1,14 +1,11 @@
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.dom.Window
-import three.js.AxesHelper
-import three.js.Color
-import three.js.GridHelper
-import three.js.Object3D
 
 
 fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
@@ -28,6 +25,10 @@ suspend fun Window.awaitPaint(): Double = suspendCancellableCoroutine { cont ->
 
 @Composable fun Window.produceTime() = produceState(0.0) {
     while (true) value = awaitPaint()
+}
+
+@Composable fun Window.onEachFrame(action: (Double) -> Unit) = LaunchedEffect(Unit) {
+    while (true) action(awaitPaint())
 }
 
 
