@@ -8,6 +8,7 @@ import three.js.Object3D
 
 
 fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
+fun Double.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
 
 val Window.aspectRatio get() = innerWidth.toDouble() / innerHeight
 
@@ -25,10 +26,10 @@ operator fun Double.div(that: Number) = this / that.toDouble()
 private val gridColor1 = Color(0xffffff)
 private val gridColor2 = Color(0x888888)
 
-fun Object3D.withGridHelper(units: Int = 10, depthTest: Boolean = false, renderOrder: Int = 1) = apply {
+fun <T: Object3D> T.withGridHelper(units: Int = 10, depthTest: Boolean = false, renderOrder: Int = 1) = apply {
     add(GridHelper(units, units, gridColor1, gridColor2).apply { this.material.depthTest = depthTest; this.renderOrder = renderOrder })
 }
 
-fun Object3D.withAxesHelper(depthTest: Boolean = false, renderOrder: Int = 2) = apply {
+fun <T: Object3D> T.withAxesHelper(depthTest: Boolean = false, renderOrder: Int = 2) = apply {
     add(AxesHelper().apply { material.depthTest = depthTest; this.renderOrder = renderOrder })
 }

@@ -5,11 +5,9 @@ import androidx.compose.runtime.*
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.common.material.Button
 import org.jetbrains.compose.common.material.Text
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.Style
-import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.renderComposable
@@ -42,19 +40,19 @@ fun main() {
 
 @Composable private fun AppContent() {
     val scope = rememberCoroutineScope()
-    var camPosX by remember { mutableStateOf(0.0f) }
-    var camPosY by remember { mutableStateOf(0.0f) }
-    var camPosZ by remember { mutableStateOf(10.0f) }
+    var camPosX by remember { mutableStateOf(0.0) }
+    var camPosY by remember { mutableStateOf(0.0) }
+    var camPosZ by remember { mutableStateOf(10.0) }
 
     val kim = Kim.kim
     kim.Cmd("1") { scope.launch { threeExperiment1() } }
     kim.Cmd("2") { scope.launch { threeExperiment2() } }
-    kim.Cmd("h") { camPosX += 0.1f }
-    kim.Cmd("l") { camPosX -= 0.1f }
-    kim.Cmd("k") { camPosY -= 0.1f }
-    kim.Cmd("j") { camPosY += 0.1f }
-    kim.Cmd("i") { camPosZ -= 0.1f }
-    kim.Cmd("o") { camPosZ += 0.1f }
+    kim.Cmd("h") { camPosX += 0.1 }
+    kim.Cmd("l") { camPosX -= 0.1 }
+    kim.Cmd("k") { camPosY -= 0.1 }
+    kim.Cmd("j") { camPosY += 0.1 }
+    kim.Cmd("i") { camPosZ -= 0.1 }
+    kim.Cmd("o") { camPosZ += 0.1 }
 
     LaunchedEffect(camPosX) { model?.camera?.position?.x = camPosX }
     LaunchedEffect(camPosY) { model?.camera?.position?.y = camPosY }
@@ -62,6 +60,7 @@ fun main() {
 
     H2 { Text("Kthreelhu JS") }
     CmnDText("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}", mono = true)
+    KthExample1(camPosX, camPosY, camPosZ)
     Div(attrs = {
         onWheel {
             it.preventDefault()
@@ -69,8 +68,8 @@ fun main() {
         }
         onMouseMove {
             if (it.buttons.toInt() != 0) {
-                camPosX = - it.offsetX.toFloat() / 100 + 5
-                camPosY = it.offsetY.toFloat() / 100 - 5
+                camPosX = - it.offsetX / 100 + 5
+                camPosY = it.offsetY / 100 - 5
             }
         }
     }) {
