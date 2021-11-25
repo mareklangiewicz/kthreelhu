@@ -1,5 +1,7 @@
 package pl.mareklangiewicz.kthreelhu
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.dom.Window
 import three.js.AxesHelper
 import three.js.Color
@@ -11,6 +13,16 @@ fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
 fun Double.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
 
 val Window.aspectRatio get() = innerWidth.toDouble() / innerHeight
+
+@OptIn(ExperimentalCoroutinesApi::class)
+/**
+ * https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+ * @return timestamp in millis since window creation
+ */
+suspend fun Window.awaitPaint(): Double = suspendCancellableCoroutine { cont ->
+    val handle = requestAnimationFrame { cont.resume(it, null) }
+    cont.invokeOnCancellation { cancelAnimationFrame(handle) }
+}
 
 
 operator fun Number.minus(other: Double) = toDouble() - other

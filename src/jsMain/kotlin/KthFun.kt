@@ -26,28 +26,24 @@ import three.js.*
     CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
 }
 
-@Composable fun Kthreelhu(enabled: Boolean = true) {
+@Composable fun Kthreelhu(enabled: Boolean = true) = Div {
     val scene = LocalScene.current
     val camera = LocalCamera.current
-    val renderer = remember { WebGLRenderer() }
-    var handleId: Int
-    fun animate() {
-        renderer.render(scene, camera)
-        handleId = window.requestAnimationFrame { animate() }
-    }
-    Div {
-        DisposableRefEffect(enabled) { element: HTMLDivElement ->
-
+    val renderer = remember {
+        WebGLRenderer().apply {
             // TODO: design reasonable size related stuff
-            renderer.setSize(window.innerWidth / 2, window.innerHeight / 2)
-            renderer.setPixelRatio(window.devicePixelRatio)
-
-            element.appendChild(renderer.domElement)
-            handleId = window.requestAnimationFrame { animate() }
-            onDispose {
-                handleId.let { window.cancelAnimationFrame(it) }
-                element.removeChild(renderer.domElement)
-            }
+            setSize(window.innerWidth / 2, window.innerHeight / 2)
+            setPixelRatio(window.devicePixelRatio)
+        }
+    }
+    DisposableRefEffect(enabled) { element: HTMLDivElement ->
+        element.appendChild(renderer.domElement)
+        onDispose { element.removeChild(renderer.domElement) }
+    }
+    LaunchedEffect(enabled) {
+        while (enabled) {
+            window.awaitPaint()
+            renderer.render(scene, camera)
         }
     }
 }
