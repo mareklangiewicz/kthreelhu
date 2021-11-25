@@ -62,6 +62,47 @@ import three.js.*
     O3D({ Group() }) { content() }
 }
 
+
+@Composable fun KthCube(
+    width: Double = 1.0,
+    height: Double = 1.0,
+    depth: Double = 1.0,
+    color: Color = Color(0x808080),
+    content: @Composable Mesh<BoxGeometry, MeshPhongMaterial>.() -> Unit = {}
+) {
+    O3D({ cube(width, height, depth) }) { material.color = color; content() }
+}
+
+@Composable fun KthGridHelper(
+    units: Int = 10,
+    depthTest: Boolean = false,
+    renderOrder: Int = 1,
+    gridColor1: Color = Color(0xffffff),
+    gridColor2: Color = Color(0x888888),
+    content: @Composable GridHelper.() -> Unit = {}
+) {
+    O3D({ GridHelper(units, units, gridColor1, gridColor2) }) {
+        material.depthTest = depthTest
+        this.renderOrder = renderOrder
+        content()
+    }
+}
+
+@Composable fun KthAxesHelper(
+    depthTest: Boolean = false,
+    renderOrder: Int = 1,
+    content: @Composable AxesHelper.() -> Unit = {}
+) {
+    O3D({ AxesHelper() }) {
+        material.depthTest = depthTest
+        this.renderOrder = renderOrder
+        content()
+    }
+}
+
+private fun cube(width: Double, height: Double, depth: Double) = cube(Vector3(width, height, depth))
+private fun cube(size: Vector3) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
+
 private val LocalObject3D = compositionLocalOf<Object3D> { error("No Object3D provided - start with fun KthScene") }
 private val LocalScene = staticCompositionLocalOf<Scene> { error("No Scene provided - use fun KthScene") }
 private val LocalCamera = staticCompositionLocalOf<Camera> { error("No Camera provided - use fun KthCamera") }

@@ -62,9 +62,9 @@ fun main() {
             }
         }
     }) {
-        CmnDText("try mouse click+move and wheel", mono = true)
-        KthExample1(camPosX, camPosY, camPosZ)
         CmnDText("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}", mono = true)
+        CmnDText("try mouse click+move and wheel", mono = true)
+        KthExamples(camPosX, camPosY, camPosZ)
     }
 }
 fun threeExperiment1() {
