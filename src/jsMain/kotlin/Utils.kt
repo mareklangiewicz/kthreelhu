@@ -3,6 +3,7 @@ package pl.mareklangiewicz.kthreelhu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
+import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -26,12 +27,12 @@ suspend fun Window.awaitPaint(): Double = suspendCancellableCoroutine { cont ->
     cont.invokeOnCancellation { cancelAnimationFrame(handle) }
 }
 
-@Composable fun Window.produceTime() = produceState(0.0) {
+@Composable fun Window.produceEachFrameTimeMs() = produceState(0.0) {
     while (true) value = awaitPaint()
 }
 
-@Composable fun Window.onEachFrame(action: (Double) -> Unit) =
-    LaunchedEffect(Unit) { while (isActive) action(awaitPaint()) }
+@Composable fun EachFrameEffect(w: Window = window, onEachFrame: (Double) -> Unit) =
+    LaunchedEffect(w, onEachFrame) { while (isActive) onEachFrame(w.awaitPaint()) }
 
 
 val Double.int get() = toInt()

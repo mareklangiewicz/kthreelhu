@@ -1,7 +1,6 @@
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.*
-import kotlinx.browser.window
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import pl.mareklangiewicz.widgets.CmnDText
 import three.js.*
@@ -37,9 +36,9 @@ import kotlin.math.sin
     KthCube {
         KthGridHelper()
         material.color = remember { Color(0x0000ff) }
-        val timeMs by window.produceTime()
-        val t = timeMs / 1000
-        position.set(sin(t) * 4 xy cos(t * 1.4) * 7 yz sin(t * 5.7 + 2))
+        EachFrameEffect { val t = it / 1000
+            position.set(sin(t) * 4 xy cos(t * 1.4) * 7 yz sin(t * 5.7 + 2))
+        }
     }
     KthCube(1.0 xy 2.0 yz 0.5) {
         KthGridHelper()
@@ -50,12 +49,12 @@ import kotlin.math.sin
 
 @Composable fun O3DExample2() {
     G3D {
-        window.onEachFrame { rotation.x = it / 50000 }
-
-        val timeMs by window.produceTime()
+        EachFrameEffect { rotation.set(it / 50000, -it / 20000, -it / 900) }
         for (x in 1..10) for (y in 1..10)
-            KthCube(0.5 xy 0.5 yz (3.0 rnd 6.0), Color(0xffffff.max)) {
-                position.set(x.dbl * 0.7 xy y.dbl * 0.7 yz (0.00001 + timeMs).max / 400000)
+            KthCube(0.5 xy 0.5 yz remember { 1.0 rnd 3.0 }, Color(0xffffff.max)) {
+                EachFrameEffect {
+                    position.set(x.dbl * 0.7, y.dbl * 0.7, (0.00001 + it).max / 400000 * y)
+                }
             }
     }
 }

@@ -40,7 +40,7 @@ import three.js.*
         element.appendChild(renderer.domElement)
         onDispose { element.removeChild(renderer.domElement) }
     }
-    if (enabled) window.onEachFrame { renderer.render(scene, camera) }
+    if (enabled) EachFrameEffect { renderer.render(scene, camera) }
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {
