@@ -15,6 +15,7 @@ import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim
+import pl.mareklangiewicz.widgets.kim.Kim.Key
 import pl.mareklangiewicz.widgets.kim.KimKeyDownEffect
 
 fun main() {
@@ -28,7 +29,7 @@ fun main() {
     Kim.Area {
         val kim = Kim.kim
         KimKeyDownEffect(kim, window)
-        kim.Cmd("q") { window.close() }
+        kim.cmd("q") { window.close() }
         Kim.Frame { AppContent() }
     }
 }
@@ -40,16 +41,18 @@ fun main() {
     var camPosZ by remember { mutableStateOf(10.0) }
 
     val kim = Kim.kim
-    kim.Cmd("1") { scope.launch { threeExperiment1() } }
-    kim.Cmd("2") { scope.launch { threeExperiment2() } }
-    kim.Cmd("h") { camPosX += 0.1 }
-    kim.Cmd("l") { camPosX -= 0.1 }
-    kim.Cmd("k") { camPosY -= 0.1 }
-    kim.Cmd("j") { camPosY += 0.1 }
-    kim.Cmd("i") { camPosZ -= 0.1 }
-    kim.Cmd("o") { camPosZ += 0.1 }
+    kim.cmd("1") { scope.launch { threeExperiment1() } }
+    kim.cmd("2") { scope.launch { threeExperiment2() } }
+    kim.cmd("h") { camPosX += 0.1 }
+    kim.cmd("l") { camPosX -= 0.1 }
+    kim.cmd("k") { camPosY -= 0.1 }
+    kim.cmd("j") { camPosY += 0.1 }
+    kim.cmd("i") { camPosZ -= 0.1 }
+    kim.cmd("o") { camPosZ += 0.1 }
 
-    H2 { Text("Kthreelhu JS") }
+    val toggled by kim.toggle(Key("t"))
+
+    H2 { Text("Kthreelhu JS ($toggled)") }
     Div(attrs = {
         onWheel {
             it.preventDefault()
