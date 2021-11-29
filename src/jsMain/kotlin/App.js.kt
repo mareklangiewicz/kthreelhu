@@ -46,8 +46,8 @@ fun main() {
     var camPos by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
     var camRot by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
 
-    Key("1").cmd().collect { scope.launch { threeExperiment1() } }
-    Key("2").cmd().collect { scope.launch { threeExperiment2() } }
+    Key("3").cmd().collect { scope.launch { threeExperiment3() } }
+    Key("4").cmd().collect { scope.launch { threeExperiment4() } }
 
     val te by Key("e").toggledLocally(false)
     val tr by Key("r").toggledLocally(false)
@@ -88,12 +88,14 @@ fun main() {
 
 private fun XY.to3d(swapYZ: Boolean = false) = if (swapYZ) x xy 0.0 yz y else x xy y yz 0.0
 
-fun threeExperiment1() {
+fun threeExperiment3() {
     console.log("TODO")
+    window.alert("TODO")
 }
 
-suspend fun threeExperiment2() {
+suspend fun threeExperiment4() {
     console.log("TODO")
+    window.alert("TODO")
 //    val system = parseJsonBraxSystem("./walking_ant.json")
 //    model?.scene?.addBraxSystem(system)
 //    // TODO: trajectory/animation stuff (based on brax repo)

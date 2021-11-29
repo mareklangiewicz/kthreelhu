@@ -3,6 +3,8 @@ package pl.mareklangiewicz.kthreelhu
 import androidx.compose.runtime.*
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import pl.mareklangiewicz.widgets.CmnDText
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
+import pl.mareklangiewicz.widgets.kim.Kim.Key
 import three.js.*
 import kotlin.math.cos
 import kotlin.math.sin
@@ -12,14 +14,16 @@ import kotlin.math.sin
     KthCamera {
         position.set(camPos)
         rotation.set(camRot)
-        CmnDText("Example 1", mono = true)
-        KthScene {
+        val ex1 by Key("1").toggledLocally()
+        val ex2 by Key("2").toggledLocally()
+        CmnDText("Example 1 - press 1 to enable/disable", mono = true)
+        if (ex1) KthScene {
             Kthreelhu()
             O3DExampleLights()
             O3DExample1()
         }
-        CmnDText("Example 2", mono = true)
-        KthScene {
+        CmnDText("Example 2 - press 1 to enable/disable", mono = true)
+        if (ex2) KthScene {
             Kthreelhu()
             O3DExampleLights()
             O3DExample2()

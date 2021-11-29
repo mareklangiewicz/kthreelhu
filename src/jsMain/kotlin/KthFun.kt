@@ -32,7 +32,7 @@ import three.js.*
     val renderer = remember {
         WebGLRenderer().apply {
             // TODO: design reasonable size related stuff
-            setSize(window.innerWidth / 2, window.innerHeight / 2)
+            setSize(window.innerWidth * 0.95, window.innerHeight * 0.7)
             setPixelRatio(window.devicePixelRatio)
         }
     }
