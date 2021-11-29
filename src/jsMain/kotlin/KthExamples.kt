@@ -8,9 +8,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
-@Composable fun KthExamples(camPos: XYZ) {
+@Composable fun KthExamples(camPos: XYZ, camRot: XYZ) {
     KthCamera {
         position.set(camPos)
+        rotation.set(camRot)
         CmnDText("Example 1", mono = true)
         KthScene {
             Kthreelhu()

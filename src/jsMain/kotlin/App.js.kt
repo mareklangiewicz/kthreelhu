@@ -14,13 +14,12 @@ import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.MouseEvent
-import org.w3c.dom.events.WheelEvent
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.KeyDownEffect
 import pl.mareklangiewicz.widgets.kim.Kim
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmd
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.collect
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.state
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
 import pl.mareklangiewicz.widgets.kim.Kim.Key
 import pl.mareklangiewicz.widgets.kim.MouseMoveEffect
 import pl.mareklangiewicz.widgets.kim.MouseWheelEffect
@@ -44,36 +43,48 @@ fun main() {
 
 @Composable private fun AppContent() {
     val scope = rememberCoroutineScope()
-    var camPosX by remember { mutableStateOf(0.0) }
-    var camPosY by remember { mutableStateOf(0.0) }
-    var camPosZ by remember { mutableStateOf(10.0) }
+    var camPos by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
+    var camRot by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
 
     Key("1").cmd().collect { scope.launch { threeExperiment1() } }
     Key("2").cmd().collect { scope.launch { threeExperiment2() } }
-    Key("h").cmd().collect { camPosX += 0.1 }
-    Key("l").cmd().collect { camPosX -= 0.1 }
-    Key("k").cmd().collect { camPosY -= 0.1 }
-    Key("j").cmd().collect { camPosY += 0.1 }
-    Key("i").cmd().collect { camPosZ -= 0.1 }
-    Key("o").cmd().collect { camPosZ += 0.1 }
-    Key("mousemove").cmd().collect {
+
+    val toggledY by Key("y").toggledLocally(false)
+    val toggledZ by Key("z").toggledLocally(false)
+    val toggledR by Key("r").toggledLocally(false)
+    val toggledS by Key("s").toggledLocally(false)
+
+    var mousePosBackup: XYZ? = null // null also signifies we are resetting the loop (mmove)
+    var camPosBackup: XYZ? = null
+    var camRotBackup: XYZ? = null
+    Key("c").cmd().collect { camPosBackup = camPos; camRotBackup = camRot; mousePosBackup = null }
+    Key("mmove").cmd().collect {
         val evt = it.data as MouseEvent
-        if (evt.buttons.toInt() != 0) {
-            camPosX = evt.offsetX / 100 + 5
-            camPosY = evt.offsetY / 100 + 5
+        val mousePos = evt.screenX.dbl xy evt.screenY.dbl yz 0.0
+        val mousePosDelta = mousePosBackup?.let { mousePos - it }
+        val factor = if (toggledS) 0.003 else 0.1
+        when {
+            mousePosBackup == null -> {
+                camPosBackup = camPos
+                camRotBackup = camRot
+                mousePosBackup = mousePos
+            }
+            toggledY -> camPos = camPosBackup!! + mousePosDelta!! * factor
+            toggledZ -> camPos = camPosBackup!! + mousePosDelta!!.run { XYZ(x, 0.0, y) } * factor
+            toggledR -> camRot = camRotBackup!! + mousePosDelta!! * factor
+            else -> {
+                camPos = camPosBackup!!
+                camRot = camRotBackup!!
+                mousePosBackup = null
+            }
         }
     }
-    Key("wheel").cmd().collect {
-        camPosZ += (it.data as WheelEvent).deltaY.toFloat() / 100
-    }
 
-    val toggled by Key("t").cmd(toggled = false).state { it?.toggled ?: false }
 
-    H2 { Text("Kthreelhu JS ($toggled)") }
+    H2 { Text("Kthreelhu JS") }
     Div {
-        CmnDText("camera: ${camPosX.toFixed()}, ${camPosY.toFixed()}, ${camPosZ.toFixed()}", mono = true)
-        CmnDText("try mouse click+move and wheel", mono = true)
-        KthExamples(camPosX xy camPosY yz camPosZ)
+        CmnDText("camPos:$camPos; camRot:$camRot; slow:$toggledS; toggledY:$toggledY; toggledZ:$toggledZ; toggledR:$toggledR", mono = true)
+        KthExamples(camPos, camRot)
     }
 }
 fun threeExperiment1() {

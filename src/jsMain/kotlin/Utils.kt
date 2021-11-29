@@ -8,6 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.dom.Window
+import three.js.Euler
 import three.js.Vector3
 import kotlin.random.Random
 
@@ -52,8 +53,12 @@ fun Int.around(spread: Int = 6) = this + (-spread rnd spread)
 fun Double.around(spread: Double = 6.0) = this + (-spread rnd spread)
 
 
-data class XY(val x: Double, val y: Double)
-data class XYZ(val x: Double, val y: Double, val z: Double)
+data class XY(val x: Double, val y: Double) {
+    override fun toString() = "(${x.toFixed()},${y.toFixed()})"
+}
+data class XYZ(val x: Double, val y: Double, val z: Double) {
+    override fun toString() = "(${x.toFixed()},${y.toFixed()},${z.toFixed()})"
+}
 
 infix fun Double.xy(that: Double) = XY(this, that)
 infix fun XY.yz(that: Double) = XYZ(x, y, that)
@@ -66,7 +71,9 @@ operator fun XY.div(that: Double) = x / that xy y / that
 operator fun XYZ.plus(that: XYZ) = x + that.x xy y + that.y yz z + that.z
 operator fun XYZ.minus(that: XYZ) = x - that.x xy y - that.y yz z - that.z
 operator fun XYZ.times(that: Double) = x * that xy y * that yz z * that
+operator fun XYZ.times(that: XYZ) = x * that.x xy y * that.y yz z * that.z
 operator fun XYZ.div(that: Double) = x / that xy y / that yz z / that
+operator fun XYZ.div(that: XYZ) = x / that.z xy y / that.y yz z / that.z
 
 fun lerp(v1: Double, v2: Double, fraction: Double = 0.5) = v1 + (v2 - v1) * fraction
 fun lerp(p1: XY, p2: XY, fraction: Double = 0.5) = p1 + (p2 - p1) * fraction
@@ -87,3 +94,4 @@ fun XYZ.around(spread: Double = 6.0) = this + ((-spread xy -spread yz -spread) r
 
 
 fun Vector3.set(xyz: XYZ) = set(xyz.x, xyz.y, xyz.z)
+fun Euler.set(xyz: XYZ) = set(xyz.x, xyz.y, xyz.z)
