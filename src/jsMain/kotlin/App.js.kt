@@ -49,32 +49,31 @@ fun main() {
     Key("1").cmd().collect { scope.launch { threeExperiment1() } }
     Key("2").cmd().collect { scope.launch { threeExperiment2() } }
 
-    val toggledY by Key("y").toggledLocally(false)
-    val toggledZ by Key("z").toggledLocally(false)
-    val toggledR by Key("r").toggledLocally(false)
-    val toggledS by Key("s").toggledLocally(false)
+    val te by Key("e").toggledLocally(false)
+    val tr by Key("r").toggledLocally(false)
+    val tz by Key("z").toggledLocally(false)
+    val ts by Key("s").toggledLocally(false)
 
-    lateinit var mousePosBackup: XYZ
+    lateinit var mousePosBackup: XY
     lateinit var camPosBackup: XYZ
     lateinit var camRotBackup: XYZ
     var moving = false
     Key("c").cmd().collect { if (moving) { camPosBackup = camPos; camRotBackup = camRot } }
     Key("mmove").cmd().collect {
         val evt = it.data as MouseEvent
-        val mousePos = evt.screenX.dbl xy evt.screenY.dbl yz 0.0
+        val mousePos = evt.screenX.dbl xy evt.screenY.dbl
         if (!moving) mousePosBackup = mousePos
         val mousePosDelta = mousePos - mousePosBackup
-        val factor = if (toggledS) 0.003 else 0.1
+        val factor = if (ts) 0.003 else 0.1
         when {
-            !moving && (toggledY || toggledZ || toggledR) -> {
+            !moving && (te || tr) -> {
                 mousePosBackup = mousePos
                 camPosBackup = camPos
                 camRotBackup = camRot
                 moving = true
             }
-            toggledY -> camPos = camPosBackup + mousePosDelta * factor
-            toggledZ -> camPos = camPosBackup + mousePosDelta.run { XYZ(x, 0.0, y) } * factor
-            toggledR -> camRot = camRotBackup + mousePosDelta * factor
+            te -> camPos = camPosBackup + mousePosDelta.to3d(tz) * factor
+            tr -> camRot = camRotBackup + mousePosDelta.to3d(tz) * factor / 10.0
             moving -> { camPos = camPosBackup; camRot = camRotBackup; moving = false }
         }
     }
@@ -82,10 +81,13 @@ fun main() {
 
     H2 { Text("Kthreelhu JS") }
     Div {
-        CmnDText("camPos:$camPos; camRot:$camRot; slow:$toggledS; toggledY:$toggledY; toggledZ:$toggledZ; toggledR:$toggledR", mono = true)
+        CmnDText("camPos:$camPos; camRot:$camRot; ts:$ts; tq:$te; tw:$tr tz:$tz", mono = true)
         KthExamples(camPos, camRot)
     }
 }
+
+private fun XY.to3d(swapYZ: Boolean = false) = if (swapYZ) x xy 0.0 yz y else x xy y yz 0.0
+
 fun threeExperiment1() {
     console.log("TODO")
 }
