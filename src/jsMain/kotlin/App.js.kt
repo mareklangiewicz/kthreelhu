@@ -54,29 +54,28 @@ fun main() {
     val toggledR by Key("r").toggledLocally(false)
     val toggledS by Key("s").toggledLocally(false)
 
-    var mousePosBackup: XYZ? = null // null also signifies we are resetting the loop (mmove)
-    var camPosBackup: XYZ? = null
-    var camRotBackup: XYZ? = null
-    Key("c").cmd().collect { camPosBackup = camPos; camRotBackup = camRot; mousePosBackup = null }
+    lateinit var mousePosBackup: XYZ
+    lateinit var camPosBackup: XYZ
+    lateinit var camRotBackup: XYZ
+    var moving = false
+    Key("c").cmd().collect { if (moving) { camPosBackup = camPos; camRotBackup = camRot } }
     Key("mmove").cmd().collect {
         val evt = it.data as MouseEvent
         val mousePos = evt.screenX.dbl xy evt.screenY.dbl yz 0.0
-        val mousePosDelta = mousePosBackup?.let { mousePos - it }
+        if (!moving) mousePosBackup = mousePos
+        val mousePosDelta = mousePos - mousePosBackup
         val factor = if (toggledS) 0.003 else 0.1
         when {
-            mousePosBackup == null -> {
+            !moving && (toggledY || toggledZ || toggledR) -> {
+                mousePosBackup = mousePos
                 camPosBackup = camPos
                 camRotBackup = camRot
-                mousePosBackup = mousePos
+                moving = true
             }
-            toggledY -> camPos = camPosBackup!! + mousePosDelta!! * factor
-            toggledZ -> camPos = camPosBackup!! + mousePosDelta!!.run { XYZ(x, 0.0, y) } * factor
-            toggledR -> camRot = camRotBackup!! + mousePosDelta!! * factor
-            else -> {
-                camPos = camPosBackup!!
-                camRot = camRotBackup!!
-                mousePosBackup = null
-            }
+            toggledY -> camPos = camPosBackup + mousePosDelta * factor
+            toggledZ -> camPos = camPosBackup + mousePosDelta.run { XYZ(x, 0.0, y) } * factor
+            toggledR -> camRot = camRotBackup + mousePosDelta * factor
+            moving -> { camPos = camPosBackup; camRot = camRotBackup; moving = false }
         }
     }
 
