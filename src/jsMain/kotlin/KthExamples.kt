@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalStdlibApi::class)
+
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.*
@@ -14,6 +16,7 @@ import kotlin.math.sin
     KthCamera {
         position.set(camPos)
         rotation.set(camRot)
+        // TODO: maybe use camera.lookAt instead of rotations
         val ex1 by Key("1").toggledLocally()
         val ex2 by Key("2").toggledLocally()
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
@@ -50,6 +53,12 @@ import kotlin.math.sin
         KthAxesHelper()
         material.color = remember { Color(0xff00ff) }
     }
+    val points2d = buildList {
+        for (a in 1..30) add(sin(a.dbl * 3) * 20 xy cos(a.dbl * 3) * 20)
+    }
+    val points3d = points2d.mapIndexed { i, p -> p.toXYZ(i.dbl) + (0.0 xy 0.0 yz -30.0) }
+    KthLine2D(Color(0x808080), *points2d.toTypedArray())
+    KthLine3D(Color(0x0000f0), *points3d.toTypedArray())
 }
 
 @Composable fun O3DExample2() {

@@ -66,6 +66,22 @@ import three.js.*
     O3D({ cube(size) }) { material.color = color; content() }
 }
 
+@Composable fun KthLine2D(
+    color: Color = Color(0x808080),
+    vararg points: XY,
+    content: @Composable Line<BufferGeometry, LineBasicMaterial>.() -> Unit = {}
+) {
+    O3D({ line2D(*points) }) { material.color = color; content() }
+}
+
+@Composable fun KthLine3D(
+    color: Color = Color(0x808080),
+    vararg points: XYZ,
+    content: @Composable Line<BufferGeometry, LineBasicMaterial>.() -> Unit = {}
+) {
+    O3D({ line3D(*points) }) { material.color = color; content() }
+}
+
 @Composable fun KthGridHelper(
     units: Int = 10,
     depthTest: Boolean = false,
@@ -94,6 +110,14 @@ import three.js.*
 }
 
 private fun cube(size: XYZ) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
+private fun line2D(vararg points: XY) = Line(lineGeo2D(*points), LineBasicMaterial())
+private fun line3D(vararg points: XYZ) = Line(lineGeo3D(*points), LineBasicMaterial())
+private fun lineGeo2D(vararg points: XY) = BufferGeometry().setFromPoints(points.map { it.toVector2() }.toTypedArray())
+private fun lineGeo3D(vararg points: XYZ) = BufferGeometry().setFromPoints(points.map { it.toVector3() }.toTypedArray())
+
+
+private fun XY.toVector2() = Vector2(x, y)
+private fun XYZ.toVector3() = Vector3(x, y, z)
 
 private val LocalObject3D = compositionLocalOf<Object3D> { error("No Object3D provided - start with fun KthScene") }
 private val LocalScene = staticCompositionLocalOf<Scene> { error("No Scene provided - use fun KthScene") }

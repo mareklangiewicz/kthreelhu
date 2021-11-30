@@ -72,8 +72,8 @@ fun main() {
                 camRotBackup = camRot
                 moving = true
             }
-            te -> camPos = camPosBackup + mousePosDelta.to3d(tz) * factor
-            tr -> camRot = camRotBackup + mousePosDelta.to3d(tz) * factor / 10.0
+            te -> camPos = camPosBackup + mousePosDelta.toXYZ(swapYZ = tz) * factor
+            tr -> camRot = camRotBackup + mousePosDelta.toXYZ(swapYZ = tz) * factor / 10.0
             moving -> { camPos = camPosBackup; camRot = camRotBackup; moving = false }
         }
     }
@@ -86,7 +86,7 @@ fun main() {
     }
 }
 
-private fun XY.to3d(swapYZ: Boolean = false) = if (swapYZ) x xy 0.0 yz y else x xy y yz 0.0
+fun XY.toXYZ(z: Double = 0.0, swapYZ: Boolean = false) = if (swapYZ) x xy z yz y else x xy y yz z
 
 fun threeExperiment3() {
     console.log("TODO")
