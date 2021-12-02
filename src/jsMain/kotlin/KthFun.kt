@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.Div
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.Node
 import three.js.*
 
 // TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
@@ -26,7 +27,10 @@ import three.js.*
     CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
 }
 
-@Composable fun Kthreelhu(enabled: Boolean = true) = Div {
+/**
+ * @param attachTo null means it should create own Div element and append renderer canvas to it
+ */
+@Composable fun Kthreelhu(enabled: Boolean = true, attachTo: Node? = null) {
     val scene = LocalScene.current
     val camera = LocalCamera.current
     val renderer = remember {
@@ -36,11 +40,17 @@ import three.js.*
             setPixelRatio(window.devicePixelRatio)
         }
     }
-    DisposableRefEffect(enabled) { element: HTMLDivElement ->
-        element.appendChild(renderer.domElement)
-        onDispose { element.removeChild(renderer.domElement) }
+    if (enabled) {
+        EachFrameEffect { renderer.render(scene, camera) }
+        if (attachTo == null) Div { DisposableRefEffect(enabled) { element: HTMLDivElement ->
+            element.appendChild(renderer.domElement)
+            onDispose { element.removeChild(renderer.domElement) }
+        } }
+        else DisposableEffect(enabled) {
+            attachTo.appendChild(renderer.domElement)
+            onDispose { attachTo.removeChild(renderer.domElement) }
+        }
     }
-    if (enabled) EachFrameEffect { renderer.render(scene, camera) }
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {

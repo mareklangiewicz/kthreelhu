@@ -1,8 +1,9 @@
-@file:OptIn(ExperimentalStdlibApi::class)
+@file:OptIn(ExperimentalStdlibApi::class, ExperimentalTime::class)
 
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.*
+import kotlinx.browser.window
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
@@ -10,6 +11,8 @@ import pl.mareklangiewicz.widgets.kim.Kim.Key
 import three.js.*
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.time.DurationUnit.*
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun KthExamples(camPos: XYZ, camRot: XYZ) {
@@ -17,11 +20,12 @@ import kotlin.math.sin
         position.set(camPos)
         rotation.set(camRot)
         // TODO: maybe use camera.lookAt instead of rotations
+        val ex1full by Key("F").toggledLocally()
         val ex1 by Key("1").toggledLocally()
         val ex2 by Key("2").toggledLocally()
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
-        if (ex1) KthScene {
-            Kthreelhu()
+        if (ex1 || ex1full) KthScene {
+            Kthreelhu(attachTo = if (ex1full) window.document.body else null)
             O3DExampleLights()
             O3DExample1()
         }
@@ -44,7 +48,8 @@ import kotlin.math.sin
     KthCube {
         KthGridHelper()
         material.color = remember { Color(0x0000ff) }
-        EachFrameEffect { val t = it / 1000
+        EachFrameEffect {
+            val t = it.toDouble(SECONDS)
             position.set(sin(t) * 4 xy cos(t * 1.4) * 7 yz sin(t * 5.7 + 2))
         }
     }
@@ -63,11 +68,15 @@ import kotlin.math.sin
 
 @Composable fun O3DExample2() {
     G3D {
-        EachFrameEffect { rotation.set(it / 50000, -it / 20000, -it / 900) }
+        EachFrameEffect {
+            val t = it.toDouble(SECONDS)
+            rotation.set(t / 50, -t / 20, -t)
+        }
         for (x in 1..10) for (y in 1..10)
             KthCube(0.5 xy 0.5 yz remember { 1.0 rnd 3.0 }, Color(0xffffff.max)) {
                 EachFrameEffect {
-                    position.set(x.dbl * 0.7, y.dbl * 0.7, (0.00001 + it).max / 400000 * y)
+                    val t = it.toDouble(MILLISECONDS)
+                    position.set(x.dbl * 0.7, y.dbl * 0.7, (0.00001 + t).max / 400000 * y)
                 }
             }
     }

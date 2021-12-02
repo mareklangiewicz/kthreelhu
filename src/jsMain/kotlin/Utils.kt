@@ -1,16 +1,21 @@
+@file:OptIn(ExperimentalTime::class)
+
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.withFrameNanos
 import kotlinx.browser.window
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.dom.Window
 import three.js.Euler
 import three.js.Vector3
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.DurationUnit.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.toDuration
 
 
 fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
@@ -18,22 +23,14 @@ fun Double.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
 
 val Window.aspectRatio get() = innerWidth.dbl / innerHeight
 
-@OptIn(ExperimentalCoroutinesApi::class)
-/**
- * https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
- * @return timestamp in millis since window creation
- */
-suspend fun Window.awaitPaint(): Double = suspendCancellableCoroutine { cont ->
-    val handle = requestAnimationFrame { cont.resume(it, null) }
-    cont.invokeOnCancellation { cancelAnimationFrame(handle) }
+@Composable fun produceEachFrameTime() = produceState(Duration.ZERO) {
+    while (isActive) value = withFrameNanos { it.toDuration(NANOSECONDS) }
 }
 
-@Composable fun Window.produceEachFrameTimeMs() = produceState(0.0) {
-    while (true) value = awaitPaint()
-}
-
-@Composable fun EachFrameEffect(w: Window = window, onEachFrame: (Double) -> Unit) =
-    LaunchedEffect(w, onEachFrame) { while (isActive) onEachFrame(w.awaitPaint()) }
+@Composable fun EachFrameEffect(w: Window = window, onEachFrame: (Duration) -> Unit) =
+    LaunchedEffect(w, onEachFrame) {
+        while (isActive) onEachFrame(withFrameNanos { it.toDuration(NANOSECONDS) })
+    }
 
 
 val Double.int get() = toInt()
