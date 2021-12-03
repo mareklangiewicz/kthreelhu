@@ -24,19 +24,28 @@ import kotlin.time.ExperimentalTime
         val antialias by Key("A").toggledLocally()
         val ex1 by Key("1").toggledLocally()
         val ex2 by Key("2").toggledLocally()
+        val rendererSetup: WebGLRendererParameters.() -> Unit = remember(antialias) { { this.antialias = antialias } }
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
         if (ex1 || ex1full) KthScene {
-//            Kthreelhu(attachTo = if (ex1full) window.document.body else null)
-            // FIXME_later: above dynamic if makes moving around really slow.. why?
-//            Kthreelhu(attachTo = window.document.body)
-            val init: WebGLRendererParameters.() -> Unit = remember(antialias) { { this.antialias = antialias } }
-            Kthreelhu(init = init)
+            KthRenderer(rendererSetup) {
+                setSize(window.innerWidth * 0.95, window.innerHeight * 0.7)
+                setPixelRatio(window.devicePixelRatio)
+
+    //            Kthreelhu(attachTo = if (ex1full) window.document.body else null)
+                    // FIXME_later: above dynamic if makes moving around really slow.. why?
+    //            Kthreelhu(attachTo = window.document.body)
+                Kthreelhu()
+            }
             O3DExampleLights()
             O3DExample1()
         }
         CmnDText("Example 2 - press 1 to enable/disable", mono = true)
         if (ex2) KthScene {
-            Kthreelhu { this.antialias = antialias } // this won't change antialias reactively - see example above for reactive version
+            KthRenderer(rendererSetup) {
+                setSize(window.innerWidth * 0.95, window.innerHeight * 0.7)
+                setPixelRatio(window.devicePixelRatio)
+                Kthreelhu()
+            }
             O3DExampleLights()
             O3DExample2()
         }

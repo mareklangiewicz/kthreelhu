@@ -8,7 +8,6 @@ import org.jetbrains.compose.web.dom.Div
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.Node
 import three.js.*
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 // TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
@@ -31,20 +30,25 @@ import kotlin.time.ExperimentalTime
     CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
 }
 
+@Composable fun KthRenderer(
+    setup: WebGLRendererParameters.() -> Unit = {},
+    content: @Composable WebGLRenderer.() -> Unit
+) {
+    val renderer = remember(setup) {
+        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+        val params = (js("{}") as WebGLRendererParameters).apply(setup)
+        WebGLRenderer(params)
+    }
+    CompositionLocalProvider(LocalRenderer provides renderer) { renderer.content() }
+}
+
 /**
  * @param attachTo null means it should create own Div element and append renderer canvas to it
  */
-@Composable fun Kthreelhu(enabled: Boolean = true, attachTo: Node? = null, init: WebGLRendererParameters.() -> Unit = {}) {
+@Composable fun Kthreelhu(enabled: Boolean = true, attachTo: Node? = null) {
     val scene = LocalScene.current
     val camera = LocalCamera.current
-    val renderer = remember(init) {
-        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-        WebGLRenderer((js("{}") as WebGLRendererParameters).apply(init)).apply {
-            // TODO: design reasonable size related stuff
-            setSize(window.innerWidth * 0.95, window.innerHeight * 0.7)
-            setPixelRatio(window.devicePixelRatio)
-        }
-    }
+    val renderer = LocalRenderer.current
     if (attachTo != null) DisposableEffect(renderer) {
         attachTo.appendChild(renderer.domElement)
         onDispose { attachTo.removeChild(renderer.domElement) }
@@ -54,8 +58,7 @@ import kotlin.time.ExperimentalTime
         element.appendChild(renderer.domElement)
         onDispose { element.removeChild(renderer.domElement) }
     } }
-    val onFrame = { _: Duration -> renderer.render(scene, camera) }
-    if (enabled) EachFrameEffect(onFrame)
+    if (enabled) EachFrameEffect { renderer.render(scene, camera) }
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {
@@ -137,3 +140,4 @@ private fun XYZ.toVector3() = Vector3(x, y, z)
 private val LocalObject3D = compositionLocalOf<Object3D> { error("No Object3D provided - start with fun KthScene") }
 private val LocalScene = staticCompositionLocalOf<Scene> { error("No Scene provided - use fun KthScene") }
 private val LocalCamera = staticCompositionLocalOf<Camera> { error("No Camera provided - use fun KthCamera") }
+private val LocalRenderer = staticCompositionLocalOf<WebGLRenderer> { error("No Renderer provided - use fun KthRenderer") }
