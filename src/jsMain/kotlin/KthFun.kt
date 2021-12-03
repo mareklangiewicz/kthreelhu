@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.*
@@ -6,6 +8,8 @@ import org.jetbrains.compose.web.dom.Div
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.Node
 import three.js.*
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 // TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
 // I may drop these Kth prefixes later after some experiments/prototyping/iterations.
@@ -30,26 +34,28 @@ import three.js.*
 /**
  * @param attachTo null means it should create own Div element and append renderer canvas to it
  */
-@Composable fun Kthreelhu(enabled: Boolean = true, attachTo: Node? = null) {
+@Composable fun Kthreelhu(enabled: Boolean = true, attachTo: Node? = null, init: WebGLRendererParameters.() -> Unit = {}) {
     val scene = LocalScene.current
     val camera = LocalCamera.current
-    val renderer = remember {
-        WebGLRenderer().apply {
+    val renderer = remember(init) {
+        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+        WebGLRenderer((js("{}") as WebGLRendererParameters).apply(init)).apply {
             // TODO: design reasonable size related stuff
             setSize(window.innerWidth * 0.95, window.innerHeight * 0.7)
             setPixelRatio(window.devicePixelRatio)
         }
     }
-    if (attachTo != null) DisposableEffect(Unit) {
+    if (attachTo != null) DisposableEffect(renderer) {
         attachTo.appendChild(renderer.domElement)
         onDispose { attachTo.removeChild(renderer.domElement) }
     }
     else
-        Div { DisposableRefEffect { element: HTMLDivElement ->
+        Div { DisposableRefEffect(renderer) { element: HTMLDivElement ->
         element.appendChild(renderer.domElement)
         onDispose { element.removeChild(renderer.domElement) }
     } }
-    if (enabled) EachFrameEffect { renderer.render(scene, camera) }
+    val onFrame = { _: Duration -> renderer.render(scene, camera) }
+    if (enabled) EachFrameEffect(onFrame)
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {
