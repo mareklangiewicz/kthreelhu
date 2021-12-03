@@ -25,7 +25,10 @@ import kotlin.time.ExperimentalTime
         val ex2 by Key("2").toggledLocally()
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
         if (ex1 || ex1full) KthScene {
-            Kthreelhu(attachTo = if (ex1full) window.document.body else null)
+//            Kthreelhu(attachTo = if (ex1full) window.document.body else null)
+            // FIXME_later: above dynamic if makes moving around really slow.. why?
+//            Kthreelhu(attachTo = window.document.body)
+            Kthreelhu()
             O3DExampleLights()
             O3DExample1()
         }

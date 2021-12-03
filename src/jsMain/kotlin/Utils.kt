@@ -27,8 +27,8 @@ val Window.aspectRatio get() = innerWidth.dbl / innerHeight
     while (isActive) value = withFrameNanos { it.toDuration(NANOSECONDS) }
 }
 
-@Composable fun EachFrameEffect(w: Window = window, onEachFrame: (Duration) -> Unit) =
-    LaunchedEffect(w, onEachFrame) {
+@Composable fun EachFrameEffect(onEachFrame: (Duration) -> Unit) =
+    LaunchedEffect(onEachFrame) {
         while (isActive) onEachFrame(withFrameNanos { it.toDuration(NANOSECONDS) })
     }
 

@@ -40,17 +40,16 @@ import three.js.*
             setPixelRatio(window.devicePixelRatio)
         }
     }
-    if (enabled) {
-        EachFrameEffect { renderer.render(scene, camera) }
-        if (attachTo == null) Div { DisposableRefEffect(enabled) { element: HTMLDivElement ->
-            element.appendChild(renderer.domElement)
-            onDispose { element.removeChild(renderer.domElement) }
-        } }
-        else DisposableEffect(enabled) {
-            attachTo.appendChild(renderer.domElement)
-            onDispose { attachTo.removeChild(renderer.domElement) }
-        }
+    if (attachTo != null) DisposableEffect(Unit) {
+        attachTo.appendChild(renderer.domElement)
+        onDispose { attachTo.removeChild(renderer.domElement) }
     }
+    else
+        Div { DisposableRefEffect { element: HTMLDivElement ->
+        element.appendChild(renderer.domElement)
+        onDispose { element.removeChild(renderer.domElement) }
+    } }
+    if (enabled) EachFrameEffect { renderer.render(scene, camera) }
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {
