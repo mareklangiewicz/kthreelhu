@@ -2,21 +2,69 @@
 
 package pl.mareklangiewicz.kthreelhu
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import kotlinx.browser.document
 import kotlinx.browser.window
-import org.jetbrains.compose.web.dom.Div
-import org.w3c.dom.HTMLDivElement
-import org.w3c.dom.Node
-import three.js.*
+import org.jetbrains.compose.web.dom.AttrBuilderContext
+import org.jetbrains.compose.web.dom.ContentBuilder
+import org.jetbrains.compose.web.dom.ElementBuilder
+import org.jetbrains.compose.web.dom.ElementScope
+import org.jetbrains.compose.web.dom.TagElement
+import org.w3c.dom.HTMLCanvasElement
+import three.js.AxesHelper
+import three.js.BoxGeometry
+import three.js.BufferGeometry
+import three.js.Camera
+import three.js.Color
+import three.js.GridHelper
+import three.js.Group
+import three.js.Line
+import three.js.LineBasicMaterial
+import three.js.Mesh
+import three.js.MeshPhongMaterial
+import three.js.Object3D
+import three.js.PerspectiveCamera
+import three.js.Renderer
+import three.js.Scene
+import three.js.Vector2
+import three.js.Vector3
+import three.js.WebGLRenderer
+import three.js.WebGLRendererParameters
 import kotlin.time.ExperimentalTime
+
+
+// FIXME_later: I don't know why sth like this is not already in standard:
+// web-core-js-1.0.0-sources.jar!/jsMain/org/jetbrains/compose/web/elements/Elements.kt:96
+private class CanvasBuilder : ElementBuilder<HTMLCanvasElement> {
+    override fun create() = document.createElement("canvas") as HTMLCanvasElement
+}
+
+@Composable
+fun Canvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: ContentBuilder<HTMLCanvasElement>? = null) {
+    TagElement(CanvasBuilder(), attrs, content)
+}
+
+@Composable
+fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Composable () -> Unit = {}) {
+    Canvas(attrs) {
+        CompositionLocalProvider(LocalCanvasScope provides this) { content() }
+    }
+}
+
 
 // TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
 // I may drop these Kth prefixes later after some experiments/prototyping/iterations.
 @Composable fun KthScene(content: @Composable Scene.() -> Unit) {
     val scene = remember { Scene() }
-    CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) {
-        scene.content()
-    }
+    CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { scene.content() }
 }
 
 @Composable fun KthCamera(
@@ -30,35 +78,31 @@ import kotlin.time.ExperimentalTime
     CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
 }
 
-@Composable fun KthRenderer(
-    setup: WebGLRendererParameters.() -> Unit = {},
-    content: @Composable WebGLRenderer.() -> Unit
-) {
-    val renderer = remember(setup) {
-        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-        val params = (js("{}") as WebGLRendererParameters).apply(setup)
-        WebGLRenderer(params)
-    }
-    CompositionLocalProvider(LocalRenderer provides renderer) { renderer.content() }
-}
+@Composable fun KthRendererConfig(
+    config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit = { canvas = it },
+    content: @Composable () -> Unit = {}
+) = CompositionLocalProvider(LocalRendererConfig provides config) { content() }
 
-/**
- * @param attachTo null means it should create own Div element and append renderer canvas to it
- */
-@Composable fun Kthreelhu(enabled: Boolean = true, attachTo: Node? = null) {
+@Composable fun Kthreelhu() {
     val scene = LocalScene.current
     val camera = LocalCamera.current
-    val renderer = LocalRenderer.current
-    if (attachTo != null) DisposableEffect(renderer) {
-        attachTo.appendChild(renderer.domElement)
-        onDispose { attachTo.removeChild(renderer.domElement) }
+    val config = LocalRendererConfig.current
+    var kthCanvas by remember { mutableStateOf<HTMLCanvasElement?>(null) }
+    LocalCanvasScope.current.DisposableRefEffect {
+        kthCanvas = it
+        onDispose { kthCanvas = null }
     }
-    else
-        Div { DisposableRefEffect(renderer) { element: HTMLDivElement ->
-        element.appendChild(renderer.domElement)
-        onDispose { element.removeChild(renderer.domElement) }
-    } }
-    if (enabled) EachFrameEffect { renderer.render(scene, camera) }
+    val renderer by remember(scene, camera, config, kthCanvas) {
+        lazy<Renderer> {
+            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+            val params = (js("{}") as WebGLRendererParameters)
+                .apply { config(kthCanvas ?: error("Lazy BS logic failed")) }
+            WebGLRenderer(params).apply {
+                setSize(kthCanvas!!.clientWidth, kthCanvas!!.clientHeight)
+            }
+        }
+    }
+    EachFrameEffect(config) { renderer.render(scene, camera) }
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {
@@ -140,4 +184,5 @@ private fun XYZ.toVector3() = Vector3(x, y, z)
 private val LocalObject3D = compositionLocalOf<Object3D> { error("No Object3D provided - start with fun KthScene") }
 private val LocalScene = staticCompositionLocalOf<Scene> { error("No Scene provided - use fun KthScene") }
 private val LocalCamera = staticCompositionLocalOf<Camera> { error("No Camera provided - use fun KthCamera") }
-private val LocalRenderer = staticCompositionLocalOf<WebGLRenderer> { error("No Renderer provided - use fun KthRenderer") }
+private val LocalRendererConfig = staticCompositionLocalOf<WebGLRendererParameters.(HTMLCanvasElement) -> Unit> { { canvas = it } }
+private val LocalCanvasScope = staticCompositionLocalOf<ElementScope<HTMLCanvasElement>> { error("No Canvas provided - use fun KthCanvas") }

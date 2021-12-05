@@ -2,16 +2,22 @@
 
 package pl.mareklangiewicz.kthreelhu
 
-import androidx.compose.runtime.*
-import kotlinx.browser.window
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
+import org.jetbrains.compose.web.css.percent
+import org.jetbrains.compose.web.css.width
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
 import pl.mareklangiewicz.widgets.kim.Kim.Key
-import three.js.*
+import three.js.AmbientLight
+import three.js.Color
+import three.js.DirectionalLight
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.time.DurationUnit.*
+import kotlin.time.DurationUnit.MILLISECONDS
+import kotlin.time.DurationUnit.SECONDS
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
@@ -24,28 +30,22 @@ import kotlin.time.ExperimentalTime
         val antialias by Key("A").toggledLocally()
         val ex1 by Key("1").toggledLocally()
         val ex2 by Key("2").toggledLocally()
-        val rendererSetup: WebGLRendererParameters.() -> Unit = remember(antialias) { { this.antialias = antialias } }
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
         if (ex1 || ex1full) KthScene {
-            KthRenderer(rendererSetup) {
-                setSize(window.innerWidth * 0.95, window.innerHeight * 0.7)
-                setPixelRatio(window.devicePixelRatio)
-
-    //            Kthreelhu(attachTo = if (ex1full) window.document.body else null)
-                    // FIXME_later: above dynamic if makes moving around really slow.. why?
-    //            Kthreelhu(attachTo = window.document.body)
-                Kthreelhu()
+            KthCanvas(attrs = { style { width(60.percent) } }) {
+                KthRendererConfig(config = remember(antialias) { {
+                    canvas = it
+                    this.antialias = antialias
+                } }) {
+                    Kthreelhu()
+                }
             }
             O3DExampleLights()
             O3DExample1()
         }
-        CmnDText("Example 2 - press 1 to enable/disable", mono = true)
+        CmnDText("Example 2 - press 2 to enable/disable", mono = true)
         if (ex2) KthScene {
-            KthRenderer(rendererSetup) {
-                setSize(window.innerWidth * 0.95, window.innerHeight * 0.7)
-                setPixelRatio(window.devicePixelRatio)
-                Kthreelhu()
-            }
+            KthCanvas(attrs = { style { width(60.percent) } }) { Kthreelhu() }
             O3DExampleLights()
             O3DExample2()
         }
