@@ -27,14 +27,13 @@ import kotlin.time.ExperimentalTime
         position.set(camPos)
         rotation.set(camRot)
         // TODO: maybe use camera.lookAt instead of rotations
-        val ex1full by Key("F").toggledLocally()
         val antialias by Key("A").toggledLocally()
         val ex1 by Key("1").toggledLocally()
         val ex2 by Key("2").toggledLocally()
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
-        if (ex1 || ex1full) KthScene {
+        if (ex1) KthScene {
             KthCanvas(attrs = { style { width(60.percent) } }) {
-                KthRendererConfig(antialias) { // FIXME: why it does not refresh live with updated antialias??
+                KthRendererConfig(antialias) { // FIXME: why doesn't it refresh live with updated antialias??
                     Kthreelhu()
                 }
             }
