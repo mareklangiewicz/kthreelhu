@@ -9,6 +9,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.browser.document
@@ -77,6 +78,13 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     val camera = remember { PerspectiveCamera(fov, aspectRatio, near, far) }
     CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
 }
+@Composable fun KthRendererConfig(
+    antialias: Boolean,
+    content: @Composable () -> Unit = {}
+) {
+    val config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit = remember(antialias) { { canvas = it; this.antialias = antialias } }
+    KthRendererConfig(config, content)
+}
 
 @Composable fun KthRendererConfig(
     config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit = { canvas = it },
@@ -92,17 +100,15 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
         kthCanvas = it
         onDispose { kthCanvas = null }
     }
-    val renderer by remember(scene, camera, config, kthCanvas) {
-        lazy<Renderer> {
-            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-            val params = (js("{}") as WebGLRendererParameters)
-                .apply { config(kthCanvas ?: error("Lazy BS logic failed")) }
-            WebGLRenderer(params).apply {
-                setSize(kthCanvas!!.clientWidth, kthCanvas!!.clientHeight)
-            }
-        }
+
+    val renderer = remember<Renderer?>(scene, camera, config, kthCanvas) {
+        val c = kthCanvas ?: return@remember null
+        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+        val params = (js("{}") as WebGLRendererParameters).apply { config(c) }
+        WebGLRenderer(params).apply { setSize(c.clientWidth, c.clientHeight) }
     }
-    EachFrameEffect(config) { renderer.render(scene, camera) }
+    val currentRenderer = rememberUpdatedState(renderer)
+    EachFrameEffect { currentRenderer.value?.render(scene, camera) }
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {

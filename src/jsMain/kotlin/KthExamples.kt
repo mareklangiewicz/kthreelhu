@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.percent
+import org.jetbrains.compose.web.css.plus
 import org.jetbrains.compose.web.css.width
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
@@ -33,10 +34,7 @@ import kotlin.time.ExperimentalTime
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
         if (ex1 || ex1full) KthScene {
             KthCanvas(attrs = { style { width(60.percent) } }) {
-                KthRendererConfig(config = remember(antialias) { {
-                    canvas = it
-                    this.antialias = antialias
-                } }) {
+                KthRendererConfig(antialias) { // FIXME: why it does not refresh live with updated antialias??
                     Kthreelhu()
                 }
             }
