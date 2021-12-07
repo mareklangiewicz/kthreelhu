@@ -9,7 +9,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.browser.document
@@ -33,7 +32,6 @@ import three.js.Mesh
 import three.js.MeshPhongMaterial
 import three.js.Object3D
 import three.js.PerspectiveCamera
-import three.js.Renderer
 import three.js.Scene
 import three.js.Vector2
 import three.js.Vector3
@@ -78,15 +76,18 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     val camera = remember { PerspectiveCamera(fov, aspectRatio, near, far) }
     CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
 }
-@Composable fun KthRendererConfig(
-    antialias: Boolean,
-    content: @Composable () -> Unit = {}
-) {
-    val config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit = remember(antialias) { { canvas = it; this.antialias = antialias } }
-    KthRendererConfig(config, content)
+
+// this version with antialias is necessary to update config lambda automatically on antialias change
+// (and there is no need to "remember" config lambda) but I still have other issue with changing antialias reactively
+// (see comment in fun createRenderer for details)
+// UPDATE: I found workaround: wrap whole KthCanvas subtree in: key(antialias) { KthCanvas { ... } }
+//   sidenote: changing antialias recreates whole canvas and it's context - so it's heavy and chrome complains in console after many changes:
+//     "WARNING: Too many active WebGL contexts. Oldest context will be lost."
+@Composable fun KthConfig(antialias: Boolean, content: @Composable () -> Unit = {}) {
+    KthConfig({ canvas = it; this.antialias = antialias }, content)
 }
 
-@Composable fun KthRendererConfig(
+@Composable fun KthConfig(
     config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit = { canvas = it },
     content: @Composable () -> Unit = {}
 ) = CompositionLocalProvider(LocalRendererConfig provides config) { content() }
@@ -95,20 +96,26 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     val scene = LocalScene.current
     val camera = LocalCamera.current
     val config = LocalRendererConfig.current
-    var kthCanvas by remember { mutableStateOf<HTMLCanvasElement?>(null) }
-    LocalCanvasScope.current.DisposableRefEffect {
-        kthCanvas = it
-        onDispose { kthCanvas = null }
+    var renderer by remember { mutableStateOf<WebGLRenderer?>(null) }
+    LocalCanvasScope.current.DisposableRefEffect(config) { canvas ->
+        renderer = createRenderer(canvas, config)
+        onDispose { renderer?.dispose(); renderer = null }
     }
+    EachFrameEffect { renderer?.render(scene, camera) }
+}
 
-    val renderer = remember<Renderer?>(scene, camera, config, kthCanvas) {
-        val c = kthCanvas ?: return@remember null
-        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-        val params = (js("{}") as WebGLRendererParameters).apply { config(c) }
-        WebGLRenderer(params).apply { setSize(c.clientWidth, c.clientHeight) }
-    }
-    val currentRenderer = rememberUpdatedState(renderer)
-    EachFrameEffect { currentRenderer.value?.render(scene, camera) }
+private fun createRenderer(
+    canvas: HTMLCanvasElement,
+    config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit
+): WebGLRenderer {
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    val params = (js("{}") as WebGLRendererParameters).apply { config(canvas) }
+    println("params.antialias: ${params.antialias}")
+    // TODO_later: antialias is not changing reactively on screen, but this println probably shows that I do it correctly:
+    // because createRenderer is called every time and params have correct antialias set up every time. So probably a bug in three.js - investigate more..
+    // I guess here is the explanation: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
+    // (It is not possible to get a different drawing context object on a given canvas element.)
+    return WebGLRenderer(params).apply { setSize(canvas.clientWidth, canvas.clientHeight) }
 }
 
 @Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {

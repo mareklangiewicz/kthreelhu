@@ -4,10 +4,10 @@ package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.percent
-import org.jetbrains.compose.web.css.plus
 import org.jetbrains.compose.web.css.width
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
@@ -32,9 +32,11 @@ import kotlin.time.ExperimentalTime
         val ex2 by Key("2").toggledLocally()
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
         if (ex1) KthScene {
-            KthCanvas(attrs = { style { width(60.percent) } }) {
-                KthRendererConfig(antialias) { // FIXME: why doesn't it refresh live with updated antialias??
-                    Kthreelhu()
+            key(antialias) { // see comment update for fun KthConfig(antialias)
+                KthCanvas(attrs = { style { width(60.percent) } }) {
+                    KthConfig(antialias) {
+                        Kthreelhu()
+                    }
                 }
             }
             O3DExampleLights()
@@ -42,7 +44,13 @@ import kotlin.time.ExperimentalTime
         }
         CmnDText("Example 2 - press 2 to enable/disable", mono = true)
         if (ex2) KthScene {
-            KthCanvas(attrs = { style { width(60.percent) } }) { Kthreelhu() }
+            key (antialias) { // see comment update for fun KthConfig(antialias)
+                KthConfig(antialias) {
+                    KthCanvas(attrs = { style { width(60.percent) } }) {
+                        Kthreelhu()
+                    }
+                }
+            }
             O3DExampleLights()
             O3DExample2()
         }
