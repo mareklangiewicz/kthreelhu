@@ -69,14 +69,10 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
 }
 
 @Composable fun KthCamera(
-    fov: Int = 75,
-    aspectRatio: Double = window.aspectRatio,
-    near: Double = 0.1,
-    far: Double = 1000.0,
-    update: suspend Camera.() -> Unit = {},
+    camera: PerspectiveCamera = remember { createPerspectiveCamera() },
+    update: suspend PerspectiveCamera.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    val camera = remember(fov, aspectRatio, near, far) { PerspectiveCamera(fov, aspectRatio, near, far) }
     LaunchedEffect(update) { camera.update() }
     CompositionLocalProvider(LocalCamera provides camera) { content() }
 }
@@ -108,7 +104,14 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     EachFrameEffect { renderer?.render(scene, camera) }
 }
 
-private fun createRenderer(
+fun createPerspectiveCamera(
+    fov: Int = 75,
+    aspectRatio: Double = window.aspectRatio,
+    near: Double = 0.1,
+    far: Double = 1000.0
+) = PerspectiveCamera(fov, aspectRatio, near, far)
+
+fun createRenderer(
     canvas: HTMLCanvasElement,
     config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit
 ): WebGLRenderer {

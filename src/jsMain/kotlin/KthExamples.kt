@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import kotlinx.browser.window
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.width
