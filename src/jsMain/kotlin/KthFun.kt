@@ -62,17 +62,23 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
 
 // TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
 // I may drop these Kth prefixes later after some experiments/prototyping/iterations.
-@Composable fun KthScene(update: suspend Scene.() -> Unit = {}, content: @Composable () -> Unit) {
-    val scene = remember { Scene() }
+@Composable fun KthScene(
+    create: () -> Scene = { Scene() },
+    update: suspend Scene.() -> Unit = {},
+    content: @Composable () -> Unit
+) {
+    val scene = remember(create) { create() }
     LaunchedEffect(update) { scene.update() }
     CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { content() }
 }
 
 @Composable fun KthCamera(
-    camera: PerspectiveCamera = remember { createPerspectiveCamera() },
+    create: () -> PerspectiveCamera = { createPerspectiveCamera() },
     update: suspend PerspectiveCamera.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
+//    val camera = remember(create) { create() } // FIXME NOW: why this version make it moving slow?? investigate carefully!!
+    val camera = remember { create() }
     LaunchedEffect(update) { camera.update() }
     CompositionLocalProvider(LocalCamera provides camera) { content() }
 }
@@ -125,44 +131,48 @@ fun createRenderer(
     return WebGLRenderer(params).apply { setSize(canvas.clientWidth, canvas.clientHeight) }
 }
 
-@Composable fun <T: Object3D> O3D(newO3D: () -> T, content: @Composable T.() -> Unit = {}) {
-    val child = remember(newO3D) { newO3D() }
+@Composable fun <T: Object3D> O3D(
+    create: () -> T,
+    update: (suspend T.() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) {
+//    val child = remember(create) { create() } // FIXME NOW: I guess here I will have the same optimization problem as in KthCamera (but maybe not so visible..)
+    val child = remember { create() }
+    if (update != null) LaunchedEffect(update) { child.update() }
     val parent = LocalObject3D.current
     DisposableEffect(parent, child) {
         parent.add(child)
         onDispose { parent.remove(child) }
     }
-    CompositionLocalProvider(LocalObject3D provides child) { child.content() }
+    CompositionLocalProvider(LocalObject3D provides child) { content() }
 }
 
-@Composable fun G3D(content: @Composable Group.() -> Unit) {
-    O3D({ Group() }) { content() }
-}
+@Composable fun G3D(
+    update: (suspend Group.() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) = O3D({ Group() }, update, content)
 
 
 @Composable fun KthCube(
     size: XYZ = 1.0 xy 1.0 yz 1.0,
     color: Color = Color(0x808080),
-    content: @Composable Mesh<BoxGeometry, MeshPhongMaterial>.() -> Unit = {}
-) {
-    O3D({ cube(size) }) { material.color = color; content() }
-}
+    update: (suspend Mesh<BoxGeometry, MeshPhongMaterial>.() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) = O3D({ cube(size).apply { material.color = color } }, update, content)
 
 @Composable fun KthLine2D(
     color: Color = Color(0x808080),
     vararg points: XY,
-    content: @Composable Line<BufferGeometry, LineBasicMaterial>.() -> Unit = {}
-) {
-    O3D({ line2D(*points) }) { material.color = color; content() }
-}
+    update: (suspend Line<BufferGeometry, LineBasicMaterial>.() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) = O3D({ line2D(*points).apply { material.color = color } }, update, content)
 
 @Composable fun KthLine3D(
     color: Color = Color(0x808080),
     vararg points: XYZ,
-    content: @Composable Line<BufferGeometry, LineBasicMaterial>.() -> Unit = {}
-) {
-    O3D({ line3D(*points) }) { material.color = color; content() }
-}
+    update: (suspend Line<BufferGeometry, LineBasicMaterial>.() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) = O3D({ line3D(*points).apply { material.color = color } }, update, content)
 
 @Composable fun KthGridHelper(
     units: Int = 10,
@@ -170,26 +180,22 @@ fun createRenderer(
     renderOrder: Int = 1,
     gridColor1: Color = Color(0xffffff),
     gridColor2: Color = Color(0x888888),
-    content: @Composable GridHelper.() -> Unit = {}
-) {
-    O3D({ GridHelper(units, units, gridColor1, gridColor2) }) {
-        material.depthTest = depthTest
-        this.renderOrder = renderOrder
-        content()
-    }
-}
+    update: (suspend GridHelper.() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) = O3D({ GridHelper(units, units, gridColor1, gridColor2).apply {
+    material.depthTest = depthTest
+    this.renderOrder = renderOrder
+} }, update, content)
 
 @Composable fun KthAxesHelper(
     depthTest: Boolean = false,
     renderOrder: Int = 1,
-    content: @Composable AxesHelper.() -> Unit = {}
-) {
-    O3D({ AxesHelper() }) {
-        material.depthTest = depthTest
-        this.renderOrder = renderOrder
-        content()
-    }
-}
+    update: (suspend AxesHelper.() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) = O3D({ AxesHelper().apply {
+    material.depthTest = depthTest
+    this.renderOrder = renderOrder
+} }, update, content)
 
 private fun cube(size: XYZ) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
 private fun line2D(vararg points: XY) = Line(lineGeo2D(*points), LineBasicMaterial())

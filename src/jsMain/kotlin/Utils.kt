@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.withFrameNanos
-import kotlinx.browser.window
 import kotlinx.coroutines.isActive
 import org.w3c.dom.Window
 import three.js.Euler
@@ -23,13 +22,16 @@ fun Double.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
 
 val Window.aspectRatio get() = innerWidth.dbl / innerHeight
 
+inline suspend fun <R> withFrame(crossinline onFrame: (frameTime: Duration) -> R): R =
+    withFrameNanos { onFrame(it.toDuration(NANOSECONDS)) }
+
 @Composable fun produceEachFrameTime() = produceState(Duration.ZERO) {
-    while (isActive) value = withFrameNanos { it.toDuration(NANOSECONDS) }
+    while (isActive) value = withFrame { it }
 }
 
 @Composable fun EachFrameEffect(key: Any? = null, onEachFrame: (Duration) -> Unit) =
     LaunchedEffect(key, onEachFrame) {
-        while (isActive) onEachFrame(withFrameNanos { it.toDuration(NANOSECONDS) })
+        while (isActive) onEachFrame(withFrame { it })
     }
 
 
@@ -50,10 +52,10 @@ fun Int.around(spread: Int = 6) = this + (-spread rnd spread)
 fun Double.around(spread: Double = 6.0) = this + (-spread rnd spread)
 
 
-data class XY(val x: Double, val y: Double) {
+data class XY(val x: Double = 0.0, val y: Double = 0.0) {
     override fun toString() = "(${x.toFixed()},${y.toFixed()})"
 }
-data class XYZ(val x: Double, val y: Double, val z: Double) {
+data class XYZ(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
     override fun toString() = "(${x.toFixed()},${y.toFixed()},${z.toFixed()})"
 }
 
