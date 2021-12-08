@@ -5,6 +5,7 @@ package pl.mareklangiewicz.kthreelhu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,9 +62,10 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
 
 // TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
 // I may drop these Kth prefixes later after some experiments/prototyping/iterations.
-@Composable fun KthScene(content: @Composable Scene.() -> Unit) {
+@Composable fun KthScene(update: suspend Scene.() -> Unit = {}, content: @Composable () -> Unit) {
     val scene = remember { Scene() }
-    CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { scene.content() }
+    LaunchedEffect(update) { scene.update() }
+    CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { content() }
 }
 
 @Composable fun KthCamera(
@@ -71,10 +73,12 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     aspectRatio: Double = window.aspectRatio,
     near: Double = 0.1,
     far: Double = 1000.0,
-    content: @Composable Camera.() -> Unit
+    update: suspend Camera.() -> Unit = {},
+    content: @Composable () -> Unit
 ) {
-    val camera = remember { PerspectiveCamera(fov, aspectRatio, near, far) }
-    CompositionLocalProvider(LocalCamera provides camera) { camera.content() }
+    val camera = remember(fov, aspectRatio, near, far) { PerspectiveCamera(fov, aspectRatio, near, far) }
+    LaunchedEffect(update) { camera.update() }
+    CompositionLocalProvider(LocalCamera provides camera) { content() }
 }
 
 // this version with antialias is necessary to update config lambda automatically on antialias change

@@ -23,9 +23,10 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun KthExamples(camPos: XYZ, camRot: XYZ) {
-    KthCamera {
+    KthCamera(update = {
         position.set(camPos)
         rotation.set(camRot)
+    }) {
         // TODO: maybe use camera.lookAt instead of rotations
         val antialias by Key("A").toggledLocally()
         val ex1 by Key("1").toggledLocally()
