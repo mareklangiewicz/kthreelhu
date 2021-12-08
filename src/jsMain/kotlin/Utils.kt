@@ -12,7 +12,7 @@ import three.js.Euler
 import three.js.Vector3
 import kotlin.random.Random
 import kotlin.time.Duration
-import kotlin.time.DurationUnit.*
+import kotlin.time.DurationUnit.NANOSECONDS
 import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
 
