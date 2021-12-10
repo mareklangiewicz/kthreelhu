@@ -73,13 +73,17 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { content() }
 }
 
+// TODO_someday: analyze more: I figured out for now that this val is needed to optimization:
+// inlining it will unnecessarily create new "create" objects every time and thus create new cameras all the time.
+private val defaultCreatePerspectiveCamera: () -> PerspectiveCamera = { createPerspectiveCamera() }
 @Composable fun KthCamera(
-    create: () -> PerspectiveCamera = { createPerspectiveCamera() },
+    create: () -> PerspectiveCamera = defaultCreatePerspectiveCamera,
     update: suspend PerspectiveCamera.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
-//    val camera = remember(create) { create() } // FIXME NOW: why this version make it moving slow?? investigate carefully!!
-    val camera = remember { create() }
+    val camera = remember(create) { create() }
+        // Warning: doing just 'val camera = remember { create() }' would be incorrect!
+        // (even if convenient workaround for "defaultCreatePerspectiveCamera" issue.)
     LaunchedEffect(update) { camera.update() }
     CompositionLocalProvider(LocalCamera provides camera) { content() }
 }
