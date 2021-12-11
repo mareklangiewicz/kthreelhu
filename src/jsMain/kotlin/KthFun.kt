@@ -140,8 +140,8 @@ fun createRenderer(
     update: (suspend T.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
 ) {
-//    val child = remember(create) { create() } // FIXME NOW: I guess here I will have the same optimization problem as in KthCamera (but maybe not so visible..)
-    val child = remember { create() }
+    // it's important not to recreate objects unnecessarily (so let's leave console.log for each creation)
+    val child = remember(create) { create().also { console.log("new Object3D! type:${it.type} hash:${it.hashCode()}") } }
     if (update != null) LaunchedEffect(update) { child.update() }
     val parent = LocalObject3D.current
     DisposableEffect(parent, child) {
@@ -162,7 +162,10 @@ fun createRenderer(
 @Composable fun G3D(
     update: (suspend Group.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
-) = O3D({ Group() }, update, content)
+) {
+    val create = remember { { Group() } }
+    O3D(create, update, content)
+}
 
 
 @Composable fun KthCube(
@@ -170,21 +173,30 @@ fun createRenderer(
     color: Color = Color(0x808080),
     update: (suspend Mesh<BoxGeometry, MeshPhongMaterial>.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
-) = O3D({ cube(size).apply { material.color = color } }, update, content)
+) {
+    val create = remember(size, color) { { cube(size).apply { material.color = color } } }
+    O3D(create, update, content)
+}
 
 @Composable fun KthLine2D(
     color: Color = Color(0x808080),
     vararg points: XY,
     update: (suspend Line<BufferGeometry, LineBasicMaterial>.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
-) = O3D({ line2D(*points).apply { material.color = color } }, update, content)
+) {
+    val create = remember(color, points) { { line2D(*points).apply { material.color = color } } }
+    O3D(create, update, content)
+}
 
 @Composable fun KthLine3D(
     color: Color = Color(0x808080),
     vararg points: XYZ,
     update: (suspend Line<BufferGeometry, LineBasicMaterial>.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
-) = O3D({ line3D(*points).apply { material.color = color } }, update, content)
+) {
+    val create = remember(color, points) { { line3D(*points).apply { material.color = color } } }
+    O3D(create, update, content)
+}
 
 @Composable fun KthGridHelper(
     units: Int = 10,
@@ -194,20 +206,28 @@ fun createRenderer(
     gridColor2: Color = Color(0x888888),
     update: (suspend GridHelper.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
-) = O3D({ GridHelper(units, units, gridColor1, gridColor2).apply {
-    material.depthTest = depthTest
-    this.renderOrder = renderOrder
-} }, update, content)
+) {
+    val create = remember(units, depthTest, renderOrder, gridColor1, gridColor2) { {
+        GridHelper(units, units, gridColor1, gridColor2).apply {
+            material.depthTest = depthTest
+            this.renderOrder = renderOrder
+        }
+    } }
+    O3D(create, update, content)
+}
 
 @Composable fun KthAxesHelper(
     depthTest: Boolean = false,
     renderOrder: Int = 1,
     update: (suspend AxesHelper.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
-) = O3D({ AxesHelper().apply {
-    material.depthTest = depthTest
-    this.renderOrder = renderOrder
-} }, update, content)
+) {
+    val create = remember(depthTest, renderOrder) { { AxesHelper().apply {
+        material.depthTest = depthTest
+        this.renderOrder = renderOrder
+    } } }
+    O3D(create, update, content)
+}
 
 private fun cube(size: XYZ) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
 private fun line2D(vararg points: XY) = Line(lineGeo2D(*points), LineBasicMaterial())
