@@ -151,14 +151,6 @@ fun createRenderer(
     CompositionLocalProvider(LocalObject3D provides child) { content() }
 }
 
-// TODO: can this style replace all "update" lambdas?? Is it correct? Should it have keys?
-// what if I capture some state from outer content? will it recompose when some state changes?
-@Composable fun O3DEffect(effect: Object3D.() -> Unit) {
-    val o3d = LocalObject3D.current
-    SideEffect { o3d.effect() }
-}
-
-
 @Composable fun G3D(
     update: (suspend Group.() -> Unit)? = null,
     content: @Composable () -> Unit = {}
