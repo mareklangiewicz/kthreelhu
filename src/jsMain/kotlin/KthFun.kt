@@ -63,8 +63,9 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
 
 // TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
 // I may drop these Kth prefixes later after some experiments/prototyping/iterations.
+private val defaultCreateScene: () -> Scene = { Scene() } // see comment at: defaultCreatePerspectiveCamera
 @Composable fun KthScene(
-    create: () -> Scene = { Scene() },
+    create: () -> Scene = defaultCreateScene,
     update: suspend Scene.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
@@ -73,7 +74,7 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { content() }
 }
 
-// TODO_someday: analyze more: I figured out for now that this val is needed to optimization:
+// TODO_someday: analyze more: I figured out for now that this val defaultCre... is needed to optimization:
 // inlining it will unnecessarily create new "create" objects every time and thus create new cameras all the time.
 private val defaultCreatePerspectiveCamera: () -> PerspectiveCamera = { createPerspectiveCamera() }
 @Composable fun KthCamera(
@@ -88,16 +89,14 @@ private val defaultCreatePerspectiveCamera: () -> PerspectiveCamera = { createPe
     CompositionLocalProvider(LocalCamera provides camera) { content() }
 }
 
-// this version with antialias is necessary to update config lambda automatically on antialias change
-// (and there is no need to "remember" config lambda) but I still have other issue with changing antialias reactively
-// (see comment in fun createRenderer for details)
-// UPDATE: I found workaround: wrap whole KthCanvas subtree in: key(antialias) { KthCanvas { ... } }
-//   sidenote: changing antialias recreates whole canvas and it's context - so it's heavy and chrome complains in console after many changes:
-//     "WARNING: Too many active WebGL contexts. Oldest context will be lost."
 @Composable fun KthConfig(antialias: Boolean, content: @Composable () -> Unit = {}) {
     KthConfig({ canvas = it; this.antialias = antialias }, content)
 }
 
+// There is an issue with changing antialias reactively - see comment in fun createRenderer for details
+// Workaround: wrap whole KthCanvas subtree in: key(antialias) { KthCanvas { ... } }
+//   side note: recreating canvas and/or it's context is heavy and chrome complains in console after many antialias changes:
+//     "WARNING: Too many active WebGL contexts. Oldest context will be lost."
 @Composable fun KthConfig(
     config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit = { canvas = it },
     content: @Composable () -> Unit = {}

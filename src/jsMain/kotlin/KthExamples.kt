@@ -35,7 +35,7 @@ import kotlin.time.ExperimentalTime
         val ex2 by Key("2").toggledLocally()
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
         if (ex1) KthScene {
-            key(antialias) { // see comment update for fun KthConfig(antialias)
+            key(antialias) { // workaround for issue commented for fun KthConfig
                 KthCanvas(attrs = { style { width(60.percent) } }) {
                     KthConfig(antialias) {
                         Kthreelhu()
@@ -47,7 +47,7 @@ import kotlin.time.ExperimentalTime
         }
         CmnDText("Example 2 - press 2 to enable/disable", mono = true)
         if (ex2) KthScene {
-            key (antialias) { // see comment update for fun KthConfig(antialias)
+            key (antialias) { // workaround for issue commented for fun KthConfig
                 KthConfig(antialias) {
                     KthCanvas(attrs = { style { width(60.percent) } }) {
                         Kthreelhu()
