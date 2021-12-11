@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,11 +60,8 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
 }
 
 
-// TODO_later: for now all my composables here will have Kth prefix, to distinguish from three.js classes.
-// I may drop these Kth prefixes later after some experiments/prototyping/iterations.
-private val defaultCreateScene: () -> Scene = { Scene() } // see comment at: defaultCreatePerspectiveCamera
 @Composable fun KthScene(
-    create: () -> Scene = defaultCreateScene,
+    create: () -> Scene = remember { { Scene() } },
     update: suspend Scene.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
@@ -74,17 +70,13 @@ private val defaultCreateScene: () -> Scene = { Scene() } // see comment at: def
     CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { content() }
 }
 
-// TODO_someday: analyze more: I figured out for now that this val defaultCre... is needed to optimization:
-// inlining it will unnecessarily create new "create" objects every time and thus create new cameras all the time.
-private val defaultCreatePerspectiveCamera: () -> PerspectiveCamera = { createPerspectiveCamera() }
 @Composable fun KthCamera(
-    create: () -> PerspectiveCamera = defaultCreatePerspectiveCamera,
+    create: () -> PerspectiveCamera = remember { { createPerspectiveCamera() } }, // remember is needed here!
     update: suspend PerspectiveCamera.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
+    // Warning: doing just 'val camera = remember { create() }' would be incorrect!
     val camera = remember(create) { create() }
-        // Warning: doing just 'val camera = remember { create() }' would be incorrect!
-        // (even if convenient workaround for "defaultCreatePerspectiveCamera" issue.)
     LaunchedEffect(update) { camera.update() }
     CompositionLocalProvider(LocalCamera provides camera) { content() }
 }
