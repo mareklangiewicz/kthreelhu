@@ -120,7 +120,17 @@ import kotlin.time.ExperimentalTime
 
 @Composable fun O3DExampleGamepad() {
     var gamepads by remember { mutableStateOf(emptyList<Gamepad>()) }
-    Key("R").cmd().collect { gamepads = window.navigator.getGamepads() }
+    Key("p").cmd().collect {
+        for (g in gamepads) g.vibrationActuator?.play {
+            strongMagnitude = 1.0
+            weakMagnitude = 1.0
+            duration = 2000.0
+        }
+    }
+    Key("R").cmd().collect {
+        gamepads = window.navigator.getGamepads()
+        for (g in gamepads) g.vibrationActuator?.reset()
+    }
     Key("padadd").cmd().collect { gamepads = window.navigator.getGamepads() }
     Key("padrem").cmd().collect { gamepads = window.navigator.getGamepads() }
 

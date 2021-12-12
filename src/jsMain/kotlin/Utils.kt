@@ -54,6 +54,8 @@ external class Gamepad {
     val buttons: Array<GamepadButton>
     val axes: Array<Double> // -1.0 .. 1.0
     val timestamp: Double
+    val hapticActuators: Array<GamepadHapticActuator>?
+    val vibrationActuator: GamepadHapticActuator?
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/GamepadButton
@@ -63,6 +65,24 @@ external class GamepadButton {
     val pressed: Boolean
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/API/GamepadHapticActuator
+external class GamepadHapticActuator {
+    val type: String
+    fun playEffect(type: String, parameters: GamepadEffectParameters)  // FIXME_maybe: returning Promise?
+    fun reset() // FIXME_maybe: returning Promise?
+}
+
+@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+fun GamepadHapticActuator.play(init: GamepadEffectParameters.() -> Unit) =
+    playEffect(type, (js("{}") as GamepadEffectParameters).apply(init))
+
+
+external interface GamepadEffectParameters {
+    var duration: Double // ms
+    var startDelay: Double // ms
+    var strongMagnitude: Double // 0.0 .. 1.0
+    var weakMagnitude: Double // 0.0 .. 1.0
+}
 
 
 fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
