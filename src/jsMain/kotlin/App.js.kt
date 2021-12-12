@@ -15,6 +15,8 @@ import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.MouseEvent
 import pl.mareklangiewicz.widgets.CmnDText
+import pl.mareklangiewicz.widgets.kim.GamepadAddEffect
+import pl.mareklangiewicz.widgets.kim.GamepadRemEffect
 import pl.mareklangiewicz.widgets.kim.KeyDownEffect
 import pl.mareklangiewicz.widgets.kim.Kim
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmd
@@ -36,6 +38,8 @@ fun main() {
         Kim.KeyDownEffect(window)
         Kim.MouseMoveEffect(window)
         Kim.MouseWheelEffect(window)
+        Kim.GamepadAddEffect(window)
+        Kim.GamepadRemEffect(window)
         Key("q").cmd().collect { window.close() }
         Kim.Frame { AppContent() }
     }

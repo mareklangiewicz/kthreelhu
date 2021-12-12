@@ -5,12 +5,18 @@ package pl.mareklangiewicz.kthreelhu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.browser.window
 import kotlinx.coroutines.isActive
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.width
+import pl.mareklangiewicz.widgets.CmnDColumn
 import pl.mareklangiewicz.widgets.CmnDText
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmd
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.collect
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
 import pl.mareklangiewicz.widgets.kim.Kim.Key
 import three.js.AmbientLight
@@ -86,6 +92,7 @@ import kotlin.time.ExperimentalTime
     val points3d = points2d.mapIndexed { i, p -> p.toXYZ(i.dbl) + (0.0 xy 0.0 yz -30.0) }
     KthLine2D(Color(0x808080), *points2d.toTypedArray())
     KthLine3D(Color(0x0000f0), *points3d.toTypedArray())
+    O3DExampleGamepad()
 }
 
 @Composable fun O3DExample2() {
@@ -110,4 +117,33 @@ import kotlin.time.ExperimentalTime
             )
     }
 }
+
+private fun getGampads(): List<Gamepad> {
+    @Suppress("UNUSED_VARIABLE")
+    val jspads = window.navigator.asDynamic().getGamepads()
+    val jspadsarr = js("Array.from(jspads)") as Array<Gamepad?>
+    return buildList {
+        for (pad in jspadsarr) pad?.let { add(it) }
+    }
+}
+
+@Composable fun O3DExampleGamepad() {
+    var gamepads by remember { mutableStateOf(emptyList<Gamepad>()) }
+    Key("padadd").cmd().collect { gamepads = getGampads() }
+    Key("padrem").cmd().collect { gamepads = getGampads() }
+
+    CmnDColumn {
+        if (gamepads.isEmpty()) CmnDText("no gamepads detected")
+        else for (pad in gamepads) key(pad.id) {
+            CmnDText("pad: index: ${pad.index}; id: ${pad.id}")
+        }
+    }
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad
+external class Gamepad {
+    val index: Int
+    val id: String
+}
+
 
