@@ -118,36 +118,10 @@ import kotlin.time.ExperimentalTime
     }
 }
 
-class JsArrLike<T>(val jsObj: dynamic): Collection<T> {
-
-    init { size } // read length to crash fast if jsObj doesn't look like array-like object
-
-    operator fun <T> get(index: Int) = jsObj[index] as T
-
-    override val size: Int get() = jsObj.length as Int
-
-    override fun contains(element: T) = any { it == element }
-
-    override fun containsAll(elements: Collection<T>) = elements.all { it in this }
-
-    override fun isEmpty(): Boolean = size == 0
-
-    override fun iterator(): Iterator<T> = object : Iterator<T> {
-        var index = 0
-        override fun hasNext(): Boolean = index < size
-        override fun next(): T = this@JsArrLike[index++]
-    }
-}
-
-private fun getGampads(): List<Gamepad> {
-    val arr = JsArrLike<Gamepad?>(window.navigator.asDynamic().getGamepads())
-    return buildList { for (pad in arr) pad?.let { add(it) } }
-}
-
 @Composable fun O3DExampleGamepad() {
     var gamepads by remember { mutableStateOf(emptyList<Gamepad>()) }
-    Key("padadd").cmd().collect { gamepads = getGampads() }
-    Key("padrem").cmd().collect { gamepads = getGampads() }
+    Key("padadd").cmd().collect { gamepads = window.navigator.getGamepads() }
+    Key("padrem").cmd().collect { gamepads = window.navigator.getGamepads() }
 
     CmnDColumn {
         if (gamepads.isEmpty()) CmnDText("no gamepads detected")
@@ -155,12 +129,6 @@ private fun getGampads(): List<Gamepad> {
             CmnDText("pad: index: ${pad.index}; id: ${pad.id}")
         }
     }
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad
-external class Gamepad {
-    val index: Int
-    val id: String
 }
 
 

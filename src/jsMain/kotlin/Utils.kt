@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalTime::class)
+@file:OptIn(ExperimentalTime::class, ExperimentalStdlibApi::class)
 
 package pl.mareklangiewicz.kthreelhu
 
@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.isActive
+import org.w3c.dom.Navigator
 import org.w3c.dom.Window
 import three.js.Euler
 import three.js.Vector3
@@ -15,6 +16,41 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit.NANOSECONDS
 import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
+
+
+class JsArrLike<T>(val jsObj: dynamic): Collection<T> {
+
+    init { size } // read length to crash fast if jsObj doesn't look like array-like object
+
+    operator fun <T> get(index: Int) = jsObj[index] as T
+
+    override val size: Int get() = jsObj.length as Int
+
+    override fun contains(element: T) = any { it == element }
+
+    override fun containsAll(elements: Collection<T>) = elements.all { it in this }
+
+    override fun isEmpty(): Boolean = size == 0
+
+    override fun iterator(): Iterator<T> = object : Iterator<T> {
+        var index = 0
+        override fun hasNext(): Boolean = index < size
+        override fun next(): T = this@JsArrLike[index++]
+    }
+}
+
+fun Navigator.getGamepads(): List<Gamepad> {
+    val arr = JsArrLike<Gamepad?>(this.asDynamic().getGamepads())
+    return buildList { for (pad in arr) pad?.let { add(it) } }
+}
+
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad
+external class Gamepad {
+    val index: Int
+    val id: String
+}
+
 
 
 fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
