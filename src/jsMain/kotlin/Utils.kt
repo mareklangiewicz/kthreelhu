@@ -53,6 +53,7 @@ external class Gamepad {
     val connected: Boolean
     val buttons: Array<GamepadButton>
     val axes: Array<Double> // -1.0 .. 1.0
+    val timestamp: Double
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/GamepadButton

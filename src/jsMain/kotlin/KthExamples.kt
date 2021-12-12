@@ -128,7 +128,7 @@ import kotlin.time.ExperimentalTime
         if (gamepads.isEmpty()) CmnDText("no gamepads detected")
         else for (pad in gamepads) key(pad.id) {
             CmnDColumn { pad.run {
-                CmnDText("pad: index: $index; id: $id")
+                CmnDText("pad: index: $index; id: $id; timestamp: $timestamp")
                 CmnDText("mapping:$mapping")
                 CmnDText("connected:$connected")
                 CmnDText("axes (size:${axes.size}):")
