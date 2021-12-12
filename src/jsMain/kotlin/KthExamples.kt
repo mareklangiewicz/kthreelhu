@@ -120,13 +120,30 @@ import kotlin.time.ExperimentalTime
 
 @Composable fun O3DExampleGamepad() {
     var gamepads by remember { mutableStateOf(emptyList<Gamepad>()) }
+    Key("R").cmd().collect { gamepads = window.navigator.getGamepads() }
     Key("padadd").cmd().collect { gamepads = window.navigator.getGamepads() }
     Key("padrem").cmd().collect { gamepads = window.navigator.getGamepads() }
 
     CmnDColumn {
         if (gamepads.isEmpty()) CmnDText("no gamepads detected")
         else for (pad in gamepads) key(pad.id) {
-            CmnDText("pad: index: ${pad.index}; id: ${pad.id}")
+            CmnDColumn { pad.run {
+                CmnDText("pad: index: $index; id: $id")
+                CmnDText("mapping:$mapping")
+                CmnDText("connected:$connected")
+                CmnDText("axes (size:${axes.size}):")
+                CmnDColumn {
+                    for (axis in axes) CmnDText("axis (-1 .. +1): $axis")
+                }
+                CmnDText("buttons (size:${buttons.size}):")
+                CmnDColumn {
+                    for (btn in buttons) {
+                        CmnDText("touched: ${btn.touched}")
+                        CmnDText("pressed: ${btn.pressed}")
+                        CmnDText("value: ${btn.value}")
+                    }
+                }
+            } }
         }
     }
 }

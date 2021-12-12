@@ -49,6 +49,17 @@ fun Navigator.getGamepads(): List<Gamepad> {
 external class Gamepad {
     val index: Int
     val id: String
+    val mapping: String
+    val connected: Boolean
+    val buttons: Array<GamepadButton>
+    val axes: Array<Double> // -1.0 .. 1.0
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/GamepadButton
+external class GamepadButton {
+    val value: Double // 0.0 .. 1.0
+    val touched: Boolean
+    val pressed: Boolean
 }
 
 
