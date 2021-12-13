@@ -46,6 +46,7 @@ fun Navigator.getGamepads(): List<Gamepad> {
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad
+// TODO_someday: rest of the Gamepad API
 external class Gamepad {
     val index: Int
     val id: String
