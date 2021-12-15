@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalStdlibApi::class, ExperimentalTime::class)
+@file:Suppress("EXPERIMENTAL_API_USAGE_FUTURE_ERROR")
 
 package pl.mareklangiewicz.kthreelhu
 
@@ -15,10 +16,9 @@ import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.width
 import pl.mareklangiewicz.widgets.CmnDColumn
 import pl.mareklangiewicz.widgets.CmnDText
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmd
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.collect
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
-import pl.mareklangiewicz.widgets.kim.Kim.Key
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdPadChange
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
 import three.js.AmbientLight
 import three.js.Color
 import three.js.DirectionalLight
@@ -36,9 +36,9 @@ import kotlin.time.ExperimentalTime
         rotation.set(camRot)
     }) {
         // TODO: maybe use camera.lookAt instead of rotations
-        val antialias by Key("A").toggledLocally()
-        val ex1 by Key("1").toggledLocally()
-        val ex2 by Key("2").toggledLocally()
+        val antialias by 'a'.toggle()
+        val ex1 by '1'.toggle()
+        val ex2 by '2'.toggle()
         CmnDText("Example 1 - press 1 to enable/disable", mono = true)
         if (ex1) KthScene {
             key(antialias) { // workaround for issue commented for fun KthConfig
@@ -118,21 +118,21 @@ import kotlin.time.ExperimentalTime
     }
 }
 
+@OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun O3DExampleGamepad() {
     var gamepads by remember { mutableStateOf(emptyList<Gamepad>()) }
-    Key("p").cmd().collect {
+    'p' trigger {
         for (g in gamepads) g.vibrationActuator?.play {
             strongMagnitude = 1.0
             weakMagnitude = 1.0
             duration = 2000.0
         }
     }
-    Key("R").cmd().collect {
+    'R' trigger {
         gamepads = window.navigator.getGamepads()
         for (g in gamepads) g.vibrationActuator?.reset()
     }
-    Key("padadd").cmd().collect { gamepads = window.navigator.getGamepads() }
-    Key("padrem").cmd().collect { gamepads = window.navigator.getGamepads() }
+    cmdPadChange { gamepads = window.navigator.getGamepads() }
 
     CmnDColumn {
         if (gamepads.isEmpty()) CmnDText("no gamepads detected")

@@ -2,6 +2,9 @@
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.*
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdMouseMove
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
@@ -19,10 +22,6 @@ import pl.mareklangiewicz.widgets.kim.GamepadAddEffect
 import pl.mareklangiewicz.widgets.kim.GamepadRemEffect
 import pl.mareklangiewicz.widgets.kim.KeyDownEffect
 import pl.mareklangiewicz.widgets.kim.Kim
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmd
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.collect
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggledLocally
-import pl.mareklangiewicz.widgets.kim.Kim.Key
 import pl.mareklangiewicz.widgets.kim.MouseMoveEffect
 import pl.mareklangiewicz.widgets.kim.MouseWheelEffect
 
@@ -40,7 +39,7 @@ fun main() {
         Kim.MouseWheelEffect(window)
         Kim.GamepadAddEffect(window)
         Kim.GamepadRemEffect(window)
-        Key("q").cmd().collect { window.close() }
+        'q' trigger { window.close() }
         Kim.Frame { AppContent() }
     }
 }
@@ -50,22 +49,21 @@ fun main() {
     var camPos by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
     var camRot by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
 
-    Key("3").cmd().collect { scope.launch { threeExperiment3() } }
-    Key("4").cmd().collect { scope.launch { threeExperiment4() } }
+    '3' trigger { scope.launch { threeExperiment3() } }
+    '4' trigger { scope.launch { threeExperiment4() } }
 
-    val te by Key("e").toggledLocally(false)
-    val tr by Key("r").toggledLocally(false)
-    val tz by Key("z").toggledLocally(false)
-    val ts by Key("s").toggledLocally(false)
+    val te by 'e'.toggle(false)
+    val tr by 'r'.toggle(false)
+    val tz by 'z'.toggle(false)
+    val ts by 's'.toggle(false)
 
     lateinit var mousePosBackup: XY
     lateinit var camPosBackup: XYZ
     lateinit var camRotBackup: XYZ
     var moving = false
-    Key("c").cmd().collect { if (moving) { camPosBackup = camPos; camRotBackup = camRot } }
-    Key("mmove").cmd().collect {
-        val evt = it.data as MouseEvent
-        val mousePos = evt.screenX.dbl xy evt.screenY.dbl
+    'c' trigger { if (moving) { camPosBackup = camPos; camRotBackup = camRot } }
+    cmdMouseMove {
+        val mousePos = it.x xy it.y
         if (!moving) mousePosBackup = mousePos
         val mousePosDelta = mousePos - mousePosBackup
         val factor = if (ts) 0.003 else 0.1
