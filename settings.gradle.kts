@@ -1,5 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
+import pl.mareklangiewicz.deps.includeAndSubstituteBuild
+
 pluginManagement {
     includeBuild("../deps.kt")
     repositories {
@@ -14,6 +16,7 @@ plugins {
     id("pl.mareklangiewicz.deps.settings")
 }
 
+includeAndSubstituteBuild("../upue", Deps.upue, ":upue")
 
 rootProject.name = "kthreelhu"
 

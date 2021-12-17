@@ -14,6 +14,7 @@ import kotlinx.coroutines.isActive
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.width
+import pl.mareklangiewicz.upue.emptyArr
 import pl.mareklangiewicz.widgets.CmnDColumn
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdPadChange
@@ -120,9 +121,9 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun O3DExampleGamepad() {
-    var gamepads by remember { mutableStateOf(emptyList<Gamepad>()) }
+    var gamepads by remember { mutableStateOf(emptyArr<Gamepad?>()) }
     'p' trigger {
-        for (g in gamepads) g.vibrationActuator?.play {
+        for (g in gamepads) g?.vibrationActuator?.play {
             strongMagnitude = 1.0
             weakMagnitude = 1.0
             duration = 2000.0
@@ -130,13 +131,13 @@ import kotlin.time.ExperimentalTime
     }
     'R' trigger {
         gamepads = window.navigator.getGamepads()
-        for (g in gamepads) g.vibrationActuator?.reset()
+        for (g in gamepads) g?.vibrationActuator?.reset()
     }
     cmdPadChange { gamepads = window.navigator.getGamepads() }
 
     CmnDColumn {
-        if (gamepads.isEmpty()) CmnDText("no gamepads detected")
-        else for (pad in gamepads) key(pad.id) {
+        if (gamepads.len == 0) CmnDText("no gamepads detected")
+        else for (pad in gamepads) if (pad != null) key(pad.id) {
             CmnDColumn { pad.run {
                 CmnDText("pad: index: $index; id: $id; timestamp: $timestamp")
                 CmnDText("mapping:$mapping")

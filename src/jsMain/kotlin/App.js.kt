@@ -1,10 +1,12 @@
 @file:OptIn(ExperimentalComposeWebWidgetsApi::class)
 package pl.mareklangiewicz.kthreelhu
 
-import androidx.compose.runtime.*
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdMouseMove
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
@@ -16,16 +18,20 @@ import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.MouseEvent
+import pl.mareklangiewicz.kommon.cmnPlatformIsJs
+import pl.mareklangiewicz.kommon.cmnPlatformIsJvm
 import pl.mareklangiewicz.widgets.CmnDText
-import pl.mareklangiewicz.widgets.kim.GamepadAddEffect
-import pl.mareklangiewicz.widgets.kim.GamepadRemEffect
+import pl.mareklangiewicz.widgets.kim.GamepadEffect
 import pl.mareklangiewicz.widgets.kim.KeyDownEffect
 import pl.mareklangiewicz.widgets.kim.Kim
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdMouseMove
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
+import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
 import pl.mareklangiewicz.widgets.kim.MouseMoveEffect
 import pl.mareklangiewicz.widgets.kim.MouseWheelEffect
 
 fun main() {
+    check(!cmnPlatformIsJvm && cmnPlatformIsJs)
     console.log("Kotlin version: ${KotlinVersion.CURRENT}")
     val root = document.getElementById("root") as HTMLElement
     renderComposable(root = root) { AppJs() }
@@ -37,8 +43,7 @@ fun main() {
         Kim.KeyDownEffect(window)
         Kim.MouseMoveEffect(window)
         Kim.MouseWheelEffect(window)
-        Kim.GamepadAddEffect(window)
-        Kim.GamepadRemEffect(window)
+        Kim.GamepadEffect(window)
         'q' trigger { window.close() }
         Kim.Frame { AppContent() }
     }

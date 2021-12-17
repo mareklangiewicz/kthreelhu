@@ -25,6 +25,7 @@ kotlin {
     }
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("../kokpit667/kommon/src/commonMain/kotlin")
             kotlin.srcDir("../kokpit667/widgets/src/commonMain/kotlin")
             dependencies {
                 implementation(Deps.kotlinxDateTime)
@@ -32,10 +33,12 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.web.core)
                 implementation(compose.web.widgets)
+                implementation(Deps.upue)
             }
         }
 
         val jvmMain by getting {
+            kotlin.srcDir("../kokpit667/kommon/src/jvmMain/kotlin")
             kotlin.srcDir("../kokpit667/widgets/src/jvmMain/kotlin")
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -46,6 +49,7 @@ kotlin {
         }
 
         val jsMain by getting {
+            kotlin.srcDir("../kokpit667/kommon/src/jsMain/kotlin")
             kotlin.srcDir("../kokpit667/widgets/src/jsMain/kotlin")
             dependencies {
 //                implementation("ch.viseon.threejs:wrapper:126.0.0")
