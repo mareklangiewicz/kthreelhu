@@ -14,7 +14,10 @@ import kotlinx.coroutines.isActive
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.width
-import pl.mareklangiewicz.upue.emptyArr
+import pl.mareklangiewicz.gamepad.Gamepad
+import pl.mareklangiewicz.gamepad.getGamepads
+import pl.mareklangiewicz.gamepad.play
+import pl.mareklangiewicz.upue.arrOf
 import pl.mareklangiewicz.widgets.CmnDColumn
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdPadChange
@@ -121,7 +124,7 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun O3DExampleGamepad() {
-    var gamepads by remember { mutableStateOf(emptyArr<Gamepad?>()) }
+    var gamepads by remember { mutableStateOf(arrOf<Gamepad?>()) }
     'p' trigger {
         for (g in gamepads) g?.vibrationActuator?.play {
             strongMagnitude = 1.0
