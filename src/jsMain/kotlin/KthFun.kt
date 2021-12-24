@@ -70,6 +70,9 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     CompositionLocalProvider(LocalScene provides scene, LocalObject3D provides scene) { content() }
 }
 
+@Composable fun KthCamera(camPos: XYZ, camRot: XYZ, content: @Composable () -> Unit) {
+    KthCamera(update = { position.set(camPos); rotation.set(camRot) }, content = content)
+}
 @Composable fun KthCamera(
     create: () -> PerspectiveCamera = remember { { createPerspectiveCamera() } }, // remember is needed here!
     update: suspend PerspectiveCamera.() -> Unit = {},

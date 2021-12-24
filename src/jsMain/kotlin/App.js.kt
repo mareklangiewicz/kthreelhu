@@ -54,8 +54,8 @@ fun main() {
     var camPos by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
     var camRot by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
 
-    '3' trigger { scope.launch { threeExperiment3() } }
-    '4' trigger { scope.launch { threeExperiment4() } }
+    '8' trigger { scope.launch { threeExperiment8() } }
+    '9' trigger { scope.launch { threeExperiment9() } }
 
     val te by 'e'.toggle(false)
     val tr by 'r'.toggle(false)
@@ -95,12 +95,12 @@ fun main() {
 
 fun XY.toXYZ(z: Double = 0.0, swapYZ: Boolean = false) = if (swapYZ) x xy z yz y else x xy y yz z
 
-fun threeExperiment3() {
+fun threeExperiment8() {
     console.log("TODO")
     window.alert("TODO")
 }
 
-suspend fun threeExperiment4() {
+suspend fun threeExperiment9() {
     console.log("TODO")
     window.alert("TODO")
 //    val system = parseJsonBraxSystem("./walking_ant.json")
