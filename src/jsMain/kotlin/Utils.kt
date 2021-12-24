@@ -8,6 +8,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.isActive
 import org.w3c.dom.Window
+import pl.mareklangiewicz.kommon.str
 import three.js.Euler
 import three.js.Vector3
 import kotlin.random.Random
@@ -16,9 +17,6 @@ import kotlin.time.DurationUnit.NANOSECONDS
 import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
 
-
-fun Float.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
-fun Double.toFixed(precision: Int = 2) = asDynamic().toFixed(precision)
 
 val Window.aspectRatio get() = innerWidth.dbl / innerHeight
 
@@ -53,10 +51,10 @@ fun Double.around(spread: Double = 6.0) = this + (-spread rnd spread)
 
 
 data class XY(val x: Double = 0.0, val y: Double = 0.0) {
-    override fun toString() = "(${x.toFixed()},${y.toFixed()})"
+    override fun toString() = "(${x.str},${y.str})"
 }
 data class XYZ(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
-    override fun toString() = "(${x.toFixed()},${y.toFixed()},${z.toFixed()})"
+    override fun toString() = "(${x.str},${y.str},${z.str})"
 }
 
 infix fun Double.xy(that: Double) = XY(this, that)

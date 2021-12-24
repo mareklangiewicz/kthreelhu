@@ -19,6 +19,8 @@ import pl.mareklangiewicz.gamepad.getGamepads
 import pl.mareklangiewicz.gamepad.play
 import pl.mareklangiewicz.upue.arrOf
 import pl.mareklangiewicz.widgets.CmnDColumn
+import pl.mareklangiewicz.widgets.CmnDProgress
+import pl.mareklangiewicz.widgets.CmnDRow
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdPadChange
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
@@ -27,6 +29,7 @@ import three.js.AmbientLight
 import three.js.Color
 import three.js.DirectionalLight
 import kotlin.coroutines.coroutineContext
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.time.DurationUnit.MILLISECONDS
@@ -125,6 +128,8 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun O3DExampleGamepad() {
     var gamepads by remember { mutableStateOf(arrOf<Gamepad?>()) }
+    EachFrameEffect { gamepads = window.navigator.getGamepads() } // bad because we allocate JsArr..
+    cmdPadChange { gamepads = window.navigator.getGamepads() } // not useful because we do it in EachFrameEffect anyway
     'p' trigger {
         for (g in gamepads) g?.vibrationActuator?.play {
             strongMagnitude = 1.0
@@ -133,28 +138,23 @@ import kotlin.time.ExperimentalTime
         }
     }
     'R' trigger {
-        gamepads = window.navigator.getGamepads()
         for (g in gamepads) g?.vibrationActuator?.reset()
     }
-    cmdPadChange { gamepads = window.navigator.getGamepads() }
 
     CmnDColumn {
         if (gamepads.len == 0) CmnDText("no gamepads detected")
         else for (pad in gamepads) if (pad != null) key(pad.id) {
             CmnDColumn { pad.run {
                 CmnDText("pad: index: $index; id: $id; timestamp: $timestamp")
-                CmnDText("mapping:$mapping")
-                CmnDText("connected:$connected")
-                CmnDText("axes (size:${axes.size}):")
-                CmnDColumn {
-                    for (axis in axes) CmnDText("axis (-1 .. +1): $axis")
+                CmnDText("connected:$connected; mapping:$mapping")
+                CmnDText("axes (${axes.size}):", mono = true)
+                CmnDRow {
+                    for (axis in axes) CmnDProgress(axis, -1.0, 1.0, bold = abs(axis) > 0.1)
                 }
-                CmnDText("buttons (size:${buttons.size}):")
-                CmnDColumn {
+                CmnDText("buttons (${buttons.size}):", mono = true)
+                CmnDRow {
                     for (btn in buttons) {
-                        CmnDText("touched: ${btn.touched}")
-                        CmnDText("pressed: ${btn.pressed}")
-                        CmnDText("value: ${btn.value}")
+                        CmnDProgress(btn.value, 0.0, 1.0, bold = btn.touched || btn.pressed)
                     }
                 }
             } }
