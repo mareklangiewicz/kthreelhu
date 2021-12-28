@@ -9,6 +9,7 @@ import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.isActive
 import org.w3c.dom.Window
 import pl.mareklangiewicz.kommon.str
+import pl.mareklangiewicz.widgets.lerp
 import three.js.Euler
 import three.js.Vector3
 import kotlin.random.Random
@@ -55,6 +56,7 @@ data class XY(val x: Double = 0.0, val y: Double = 0.0) {
 }
 data class XYZ(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
     override fun toString() = "(${x.str},${y.str},${z.str})"
+    val xy get() = x xy y
 }
 
 infix fun Double.xy(that: Double) = XY(this, that)
@@ -72,9 +74,8 @@ operator fun XYZ.times(that: XYZ) = x * that.x xy y * that.y yz z * that.z
 operator fun XYZ.div(that: Double) = x / that xy y / that yz z / that
 operator fun XYZ.div(that: XYZ) = x / that.z xy y / that.y yz z / that.z
 
-fun lerp(v1: Double, v2: Double, fraction: Double = 0.5) = v1 + (v2 - v1) * fraction
-fun lerp(p1: XY, p2: XY, fraction: Double = 0.5) = p1 + (p2 - p1) * fraction
-fun lerp(p1: XYZ, p2: XYZ, fraction: Double = 0.5) = p1 + (p2 - p1) * fraction
+fun lerp(p1: XY, p2: XY, fraction: Double = 0.5) = lerp(p1.x, p2.x, fraction) xy lerp(p1.y, p2.y, fraction)
+fun lerp(p1: XYZ, p2: XYZ, fraction: Double = 0.5) = lerp(p1.xy, p2.xy, fraction) yz lerp(p1.z, p2.z, fraction)
 
 infix fun XY.avg(that: XY) = lerp(this, that)
 infix fun XYZ.avg(that: XYZ) = lerp(this, that)

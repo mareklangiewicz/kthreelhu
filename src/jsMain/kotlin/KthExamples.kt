@@ -147,11 +147,11 @@ import kotlin.time.ExperimentalTime
                 CmnDText("pad: index: $index; id: $id; timestamp: $timestamp")
                 CmnDText("connected:$connected; mapping:$mapping")
                 CmnDText("axes (${axes.size}):", mono = true)
-                CmnDRow {
+                CmnDColumn {
                     for (axis in axes) CmnDProgress(axis, -1.0, 1.0, bold = abs(axis) > 0.1)
                 }
                 CmnDText("buttons (${buttons.size}):", mono = true)
-                CmnDRow {
+                CmnDColumn {
                     for (btn in buttons) {
                         CmnDProgress(btn.value, 0.0, 1.0, bold = btn.touched || btn.pressed)
                     }
