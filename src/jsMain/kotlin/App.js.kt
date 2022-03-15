@@ -17,7 +17,7 @@ import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.ui.Styles
-import org.w3c.dom.HTMLElement
+import org.w3c.dom.*
 import pl.mareklangiewicz.kommon.cmnPlatformIsJs
 import pl.mareklangiewicz.kommon.cmnPlatformIsJvm
 import pl.mareklangiewicz.widgets.CmnDText
@@ -33,8 +33,14 @@ import pl.mareklangiewicz.widgets.kim.MouseWheelEffect
 fun main() {
     check(!cmnPlatformIsJvm && cmnPlatformIsJs)
     console.log("Kotlin version: ${KotlinVersion.CURRENT}")
-    val root = document.getElementById("root") as HTMLElement
-    renderComposable(root = root) { AppJs() }
+    tryToInstallAppIn(document.getElementById("rootForAppJs"))
+}
+
+fun tryToInstallAppIn(rootElement: Element?) {
+    when (rootElement as? HTMLElement) {
+        null -> console.warn("Kthreelhu: Incorrect rootElement")
+        else -> renderComposable(root = rootElement) { AppJs() }
+    }
 }
 
 @Composable fun AppJs() {

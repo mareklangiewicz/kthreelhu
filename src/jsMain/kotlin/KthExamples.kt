@@ -44,7 +44,7 @@ import kotlin.time.ExperimentalTime
         val ex1 by '1'.toggle()
         val ex2 by '2'.toggle()
         val ex3 by '3'.toggle()
-        val ex4 by '4'.toggle(true)
+        val ex4 by '4'.toggle()
         CmnDText("Example 1 .. 4 - press 1 .. 4 to enable/disable", mono = true)
         if (ex1) KthScene {
             key(antialias) { // workaround for issue commented for fun KthConfig

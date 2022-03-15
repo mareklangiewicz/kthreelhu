@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-import pl.mareklangiewicz.deps.includeAndSubstituteBuild
+import pl.mareklangiewicz.utils.*
 
 pluginManagement {
     includeBuild("../deps.kt")
@@ -8,7 +8,7 @@ pluginManagement {
         google()
         gradlePluginPortal()
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        //maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
@@ -16,7 +16,7 @@ plugins {
     id("pl.mareklangiewicz.deps.settings")
 }
 
-includeAndSubstituteBuild("../upue", Deps.upue, ":upue")
+//includeAndSubstituteBuild("../upue", deps.upue, ":upue")
 
 rootProject.name = "kthreelhu"
 

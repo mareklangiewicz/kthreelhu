@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version Vers.kotlin
-    id("org.jetbrains.compose") version Vers.composeDesktop
+    kotlin("multiplatform") version vers.kotlin
+    id("org.jetbrains.compose") version vers.composeDesktop
 }
 
 group = "pl.mareklangiewicz"
@@ -9,7 +9,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     google()
-    maven(Repos.composeDesktopDev)
+    maven(repos.composeDesktopDev)
 }
 
 kotlin {
@@ -28,12 +28,12 @@ kotlin {
             kotlin.srcDir("../kokpit667/kommon/src/commonMain/kotlin")
             kotlin.srcDir("../kokpit667/widgets/src/commonMain/kotlin")
             dependencies {
-                implementation(Deps.kotlinxDateTime)
-                implementation(Deps.kotlinxCoroutinesCore)
+                implementation(deps.kotlinxDateTime)
+                implementation(deps.kotlinxCoroutinesCore)
                 implementation(compose.runtime)
                 implementation(compose.web.core)
                 implementation(compose.web.widgets)
-                implementation(Deps.upue)
+                implementation(deps.upue)
             }
         }
 
