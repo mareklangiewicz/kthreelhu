@@ -1,4 +1,6 @@
 @file:OptIn(ExperimentalComposeWebWidgetsApi::class)
+@file:Suppress("OPT_IN_USAGE")
+
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.runtime.Composable
@@ -9,7 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jetbrains.compose.common.material.Text
 import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
 import org.jetbrains.compose.web.css.Style
@@ -36,6 +38,7 @@ fun main() {
     tryToInstallAppIn(document.getElementById("rootForAppJs"))
 }
 
+@JsExport
 fun tryToInstallAppIn(rootElement: Element?) {
     when (rootElement as? HTMLElement) {
         null -> console.warn("Kthreelhu: Incorrect rootElement")

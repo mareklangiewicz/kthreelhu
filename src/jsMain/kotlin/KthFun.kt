@@ -14,12 +14,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.browser.document
 import kotlinx.browser.window
-import org.jetbrains.compose.web.dom.AttrBuilderContext
-import org.jetbrains.compose.web.dom.ContentBuilder
-import org.jetbrains.compose.web.dom.ElementBuilder
-import org.jetbrains.compose.web.dom.ElementScope
-import org.jetbrains.compose.web.dom.TagElement
-import org.w3c.dom.HTMLCanvasElement
+import org.jetbrains.compose.web.dom.*
+import org.w3c.dom.*
 import three.js.AxesHelper
 import three.js.BoxGeometry
 import three.js.BufferGeometry

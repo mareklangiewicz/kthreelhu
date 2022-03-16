@@ -7,6 +7,7 @@ group = "pl.mareklangiewicz"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     google()
     maven(repos.composeDesktopDev)
@@ -16,11 +17,10 @@ kotlin {
     jvm()
     js(IR) {
         browser {
-//            webpackTask {
-//                output.libraryTarget = "commonjs"
-//            }
+            webpackTask {
+//                output.libraryTarget = "var"
+            }
         }
-//        useCommonJs()
         binaries.executable()
     }
     sourceSets {
