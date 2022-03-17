@@ -212,9 +212,9 @@ fun createRenderer(
     O3D(create, update, content)
 }
 
-private fun cube(size: XYZ) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
-private fun line2D(vararg points: XY) = Line(lineGeo2D(*points), LineBasicMaterial())
-private fun line3D(vararg points: XYZ) = Line(lineGeo3D(*points), LineBasicMaterial())
+internal fun cube(size: XYZ) = Mesh(BoxGeometry(size.x, size.y, size.z), MeshPhongMaterial())
+internal fun line2D(vararg points: XY) = Line(lineGeo2D(*points), LineBasicMaterial())
+internal fun line3D(vararg points: XYZ) = Line(lineGeo3D(*points), LineBasicMaterial())
 private fun lineGeo2D(vararg points: XY) = BufferGeometry().setFromPoints(points.map { it.toVector2() }.toTypedArray())
 private fun lineGeo3D(vararg points: XYZ) = BufferGeometry().setFromPoints(points.map { it.toVector3() }.toTypedArray())
 

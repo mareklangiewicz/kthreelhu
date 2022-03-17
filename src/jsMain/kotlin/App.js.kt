@@ -38,7 +38,6 @@ fun main() {
     tryToInstallAppIn(document.getElementById("rootForAppJs"))
 }
 
-@JsExport
 fun tryToInstallAppIn(rootElement: Element?) {
     when (rootElement as? HTMLElement) {
         null -> console.warn("Kthreelhu: Incorrect rootElement")

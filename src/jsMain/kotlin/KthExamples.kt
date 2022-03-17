@@ -3,6 +3,7 @@
 
 package pl.mareklangiewicz.kthreelhu
 
+import KthSchool
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -41,11 +42,13 @@ import kotlin.time.ExperimentalTime
     KthCamera(camPos, camRot) {
         // TODO: maybe use camera.lookAt instead of rotations
         val antialias by 'a'.toggle()
+        val ex0 by '0'.toggle(true)
         val ex1 by '1'.toggle()
         val ex2 by '2'.toggle()
         val ex3 by '3'.toggle()
         val ex4 by '4'.toggle()
-        CmnDText("Example 1 .. 4 - press 1 .. 4 to enable/disable", mono = true)
+        CmnDText("Example 0 .. 4 - press 0 .. 4 to enable/disable", mono = true)
+        if (ex0) KthSchool()
         if (ex1) KthScene {
             key(antialias) { // workaround for issue commented for fun KthConfig
                 KthCanvas(attrs = { style { width(60.percent) } }) {
