@@ -14,13 +14,13 @@ import three.js.Color
 import kotlin.math.*
 
 @JsExport
-class UObject3D internal constructor(internal val object3D: Object3D) {
-    val x get() = object3D.position.x.dbl
-    val y get() = object3D.position.y.dbl
-    val z get() = object3D.position.z.dbl
-    fun move(x: Double, y: Double, z: Double) { object3D.position.set(x, y, z) }
-    fun add(vararg objs: UObject3D) { object3D.add(*objs.map { it.object3D }.toTypedArray()) }
-    fun del(vararg objs: UObject3D) { object3D.remove(*objs.map { it.object3D }.toTypedArray()) }
+class UObject3D internal constructor(private val o3d: Object3D) {
+    val x get() = o3d.position.x.dbl
+    val y get() = o3d.position.y.dbl
+    val z get() = o3d.position.z.dbl
+    fun pos(x: Double, y: Double, z: Double): UObject3D = apply { o3d.position.set(x, y, z) }
+    fun add(uobject3D: UObject3D) { o3d.add(uobject3D.o3d) }
+    fun del(uobject3D: UObject3D) { o3d.remove(uobject3D.o3d) }
 }
 
 @JsExport
@@ -52,7 +52,7 @@ class USchool {
     fun school1example() {
         for (a in 1..90) {
             val c = ucube(0.2, 0.2, 0.2)
-            c.move(a.dbl / 10, sin(a.dbl / 10) * 3, -cos(a.dbl / 10) * 3)
+            c.pos(a.dbl / 10, sin(a.dbl / 10) * 3, -cos(a.dbl / 10) * 3)
             scene.add(c)
         }
     }
