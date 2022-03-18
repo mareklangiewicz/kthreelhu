@@ -62,7 +62,14 @@ fun tryToInstallAppIn(rootElement: Element?) {
     var camPos by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
     var camRot by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
 
-    '8' trigger { scope.launch { threeExperiment8() } }
+    'f' trigger {
+        scope.launch {
+            if (document.fullscreenElement == null)
+                document.getElementsByTagName("canvas")[0]!!.requestFullscreen()
+            else
+                document.exitFullscreen()
+        }
+    }
     '9' trigger { scope.launch { threeExperiment9() } }
 
     val te by 'e'.toggle(false)
@@ -102,11 +109,6 @@ fun tryToInstallAppIn(rootElement: Element?) {
 }
 
 fun XY.toXYZ(z: Double = 0.0, swapYZ: Boolean = false) = if (swapYZ) x xy z yz y else x xy y yz z
-
-fun threeExperiment8() {
-    console.log("TODO")
-    window.alert("TODO")
-}
 
 suspend fun threeExperiment9() {
     console.log("TODO")
