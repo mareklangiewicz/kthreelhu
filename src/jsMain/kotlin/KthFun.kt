@@ -1,57 +1,23 @@
-@file:OptIn(ExperimentalTime::class)
+@file:Suppress("FunctionName")
 
 package pl.mareklangiewicz.kthreelhu
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
-import kotlinx.browser.document
-import kotlinx.browser.window
+import androidx.compose.runtime.*
+import kotlinx.browser.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.*
-import three.js.AxesHelper
-import three.js.BoxGeometry
-import three.js.BufferGeometry
-import three.js.Camera
-import three.js.Color
-import three.js.GridHelper
-import three.js.Group
-import three.js.Line
-import three.js.LineBasicMaterial
-import three.js.Mesh
-import three.js.MeshPhongMaterial
-import three.js.Object3D
-import three.js.PerspectiveCamera
-import three.js.Scene
-import three.js.Vector2
-import three.js.Vector3
-import three.js.WebGLRenderer
-import three.js.WebGLRendererParameters
-import kotlin.time.ExperimentalTime
+import three.js.*
 
-
-// FIXME_later: I don't know why sth like this is not already in standard:
-// web-core-js-1.0.0-sources.jar!/jsMain/org/jetbrains/compose/web/elements/Elements.kt:96
-private class CanvasBuilder : ElementBuilder<HTMLCanvasElement> {
-    override fun create() = document.createElement("canvas") as HTMLCanvasElement
-}
-
-@Composable
-fun Canvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: ContentBuilder<HTMLCanvasElement>? = null) {
-    TagElement(CanvasBuilder(), attrs, content)
-}
 
 @Composable
 fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Composable () -> Unit = {}) {
     Canvas(attrs) {
-        CompositionLocalProvider(LocalCanvasScope provides this) { content() }
+        var canvas: HTMLCanvasElement? by remember { mutableStateOf(null) }
+        CompositionLocalProvider(LocalCanvas provides canvas) { content() }
+        DisposableEffect(Unit) {
+            canvas = scopeElement
+            onDispose { canvas = null }
+        }
     }
 }
 
@@ -94,11 +60,18 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
 ) = CompositionLocalProvider(LocalRendererConfig provides config) { content() }
 
 @Composable fun Kthreelhu() {
-    val scene = LocalScene.current
-    val camera = LocalCamera.current
-    val config = LocalRendererConfig.current
+    val canvas = LocalCanvas.current ?: return
+    Kthreelhu(canvas, LocalScene.current, LocalCamera.current, LocalRendererConfig.current)
+}
+
+@Composable fun Kthreelhu(
+    canvas: HTMLCanvasElement,
+    scene: Scene,
+    camera: Camera,
+    config: WebGLRendererParameters.(HTMLCanvasElement) -> Unit
+) {
     var renderer by remember { mutableStateOf<WebGLRenderer?>(null) }
-    LocalCanvasScope.current.DisposableRefEffect(config) { canvas ->
+    DisposableEffect(config, canvas) {
         renderer = createRenderer(canvas, config)
         onDispose { renderer?.dispose(); renderer = null }
     }
@@ -120,7 +93,7 @@ fun createRenderer(
     val params = (js("{}") as WebGLRendererParameters).apply { config(canvas) }
     println("params.antialias: ${params.antialias}")
     // TODO_later: antialias is not changing reactively on screen, but this println probably shows that I do it correctly:
-    // because createRenderer is called every time and params have correct antialias set up every time. So probably a bug in three.js - investigate more..
+    // because createRenderer is called every time and params have correct antialias set up every time. So probably a bug in three.js - investigate more.
     // I guess here is the explanation: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
     // (It is not possible to get a different drawing context object on a given canvas element.)
     return WebGLRenderer(params).apply { setSize(canvas.clientWidth, canvas.clientHeight) }
@@ -226,4 +199,4 @@ private val LocalObject3D = compositionLocalOf<Object3D> { error("No Object3D pr
 private val LocalScene = staticCompositionLocalOf<Scene> { error("No Scene provided - use fun KthScene") }
 private val LocalCamera = staticCompositionLocalOf<Camera> { error("No Camera provided - use fun KthCamera") }
 private val LocalRendererConfig = staticCompositionLocalOf<WebGLRendererParameters.(HTMLCanvasElement) -> Unit> { { canvas = it } }
-private val LocalCanvasScope = staticCompositionLocalOf<ElementScope<HTMLCanvasElement>> { error("No Canvas provided - use fun KthCanvas") }
+private val LocalCanvas = staticCompositionLocalOf<HTMLCanvasElement?> { null }
