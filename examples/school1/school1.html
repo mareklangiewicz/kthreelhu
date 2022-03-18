@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>School 1 Java Script</title>
-    <script src="../../build/distributions/kthreelhu.js"></script>
-<!--    <script src="../../build/developmentExecutable/kthreelhu.js"></script>-->
-    <script>
-        window.uschool = kthreelhu.uschool
-        window.onload = function () {
-            uschool.tryToInstallSchoolInBody(true)
-            uschool.school1example()
-            for (let i = 0; i < 16; i++) {
-                c = uschool.ucube(1.0, 0.2, 4.0, 0x00ff00 + i*0x100020).pos(-4, -2-i/2, -5)
-                uschool.scene.add(c)
+    <head>
+        <meta charset="UTF-8">
+        <title>School 1 Java Script</title>
+        <script src="../../build/distributions/kthreelhu.js"></script>
+    <!--    <script src="../../build/developmentExecutable/kthreelhu.js"></script>-->
+        <script>
+            window.uschool = kthreelhu.uschool
+            window.onload = function () {
+                uschool.tryToInstallSchoolInBody()
+                uschool.school1example()
+                for (let i = 0; i < 16; i++) {
+                    c = uschool.ucube(1.0, 0.2, 4.0, 0x00ff00 + i*0x100020).pos(-4, -2-i/2, -5)
+                    uschool.scene.add(c)
+                }
             }
-        }
-    </script>
-</head>
-<body>
-<h2>School 1</h2>
-
-</body>
+        </script>
+    </head>
+    <body>
+        <h2>School 1</h2>
+        <canvas id="canvasForSchool" style="width: 80%; height: 80%"></canvas>
+    </body>
 </html>

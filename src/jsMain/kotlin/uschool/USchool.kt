@@ -64,7 +64,7 @@ val uschool: USchool = USchool()
 
 @Composable internal fun KthSchool(school: USchool = uschool) {
     KthScene(create = { school.sceneObject3D }) {
-        KthCanvas(attrs = { style { width(60.percent) } }) {
+        KthCanvasForSchool {
             KthConfig(antialias = true) {
                 Kthreelhu()
             }
@@ -73,6 +73,12 @@ val uschool: USchool = USchool()
         O3DSchool()
     }
     LaunchedEffect(Unit) { console.log(school.sceneObject3D) }
+}
+
+@Composable private fun KthCanvasForSchool(content: @Composable () -> Unit = {}) {
+    val found = document.getElementById("canvasForSchool") as? HTMLCanvasElement
+    if (found == null) KthCanvas({ style { width(80.percent) } }, content)
+    else KthCanvasFromOutside(found, content)
 }
 
 @Composable private fun O3DSchool() {

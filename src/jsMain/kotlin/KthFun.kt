@@ -9,8 +9,7 @@ import org.w3c.dom.*
 import three.js.*
 
 
-@Composable
-fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Composable () -> Unit = {}) {
+@Composable fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Composable () -> Unit = {}) {
     Canvas(attrs) {
         var canvas: HTMLCanvasElement? by remember { mutableStateOf(null) }
         CompositionLocalProvider(LocalCanvas provides canvas) { content() }
@@ -21,6 +20,9 @@ fun KthCanvas(attrs: AttrBuilderContext<HTMLCanvasElement>? = null, content: @Co
     }
 }
 
+@Composable fun KthCanvasFromOutside(canvas: HTMLCanvasElement, content: @Composable () -> Unit = {}) {
+    CompositionLocalProvider(LocalCanvas provides canvas) { content() }
+}
 
 @Composable fun KthScene(
     create: () -> Scene = remember { { Scene() } },
