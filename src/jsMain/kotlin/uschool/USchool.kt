@@ -49,12 +49,19 @@ class USchool {
     private fun DoubleArray.windowedXYs() = toList().windowed(2, 2) { it[0] xy it[1] }.toTypedArray()
     private fun DoubleArray.windowedXYZs() = toList().windowed(3, 3) { it[0] xy it[1] yz it[2] }.toTypedArray()
 
-    fun school1example() {
-        for (a in 1..90) {
-            val c = ucube(0.2, 0.2, 0.2)
-            c.pos(a.dbl / 10, sin(a.dbl / 10) * 3, -cos(a.dbl / 10) * 3)
-            scene.add(c)
-        }
+    fun example1AddSpiral() {
+        for (a in 1..200) scene.add(
+            ucube(0.2, 0.2, 0.2, niceColorInt(a))
+                .pos(a.dbl / 20, sin(a.dbl / 10) * 3, -cos(a.dbl / 10) * 3)
+        )
+    }
+
+    fun niceColorInt(idx: Int, offset: Int = 0, factor: Int = 1): Int {
+        val i = (idx + offset) * factor % 0x100
+        val red = i * 3 % 0x100
+        val green = i
+        val blue = 0x100 - i
+        return 0x010000 * red + 0x000100 * green + 0x000001 * blue
     }
 }
 
