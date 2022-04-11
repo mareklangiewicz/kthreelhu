@@ -1,6 +1,6 @@
 plugins {
     kotlin("multiplatform") version vers.kotlinForCompose
-    id("org.jetbrains.compose") version vers.composeDesktop
+    id("org.jetbrains.compose") version vers.composeJb
 }
 
 group = "pl.mareklangiewicz"
