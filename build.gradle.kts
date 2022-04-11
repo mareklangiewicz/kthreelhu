@@ -44,6 +44,8 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.ui)
                 implementation(compose.foundation)
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.material3)
                 implementation(compose.material)
             }
         }
@@ -61,7 +63,7 @@ kotlin {
 }
 compose.desktop {
     application {
-        mainClass = "pl.mareklangiewicz.kthreelhu.AppKt"
+        mainClass = "pl.mareklangiewicz.kthreelhu.App_jvmKt"
 
         nativeDistributions {
             targetFormats(org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb)
