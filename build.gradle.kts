@@ -39,6 +39,13 @@ defaultBuildTemplateForComposeMppApp(
     details = libs.Kthreelhu,
     withComposeWebWidgets = true,
 ) {
+    // FIXME: I have to repeat some compose dependencies here in common, because strange issues with web.widgets.
+    // TODO: remove it when I get rid of (deprecated) web.widgets.
+    implementation(compose.runtime)
+    implementation(compose.web.core)
+    @Suppress("DEPRECATION")
+    implementation(compose.web.widgets)
+
     implementation(deps.kotlinxDateTime)
     implementation(deps.kotlinxCoroutinesCore)
     implementation(deps.upue)
@@ -187,16 +194,9 @@ fun Project.defaultBuildTemplateForComposeMppLib(
     defaultBuildTemplateForMppLib(details, withJvm, withJs, withNativeLinux64, withKotlinxHtml, true, addCommonMainDependencies)
     kotlin {
         sourceSets {
-            val commonMain by getting {
-                dependencies {
-                    implementation(compose.runtime)
-                    if (withComposeWebCore) implementation(compose.web.core)
-                    @Suppress("DEPRECATION")
-                    if (withComposeWebWidgets) implementation(compose.web.widgets)
-                }
-            }
             val jvmMain by getting {
                 dependencies {
+                    implementation(compose.runtime)
                     if (withComposeUi) {
                         implementation(compose.ui)
                         implementation(compose.uiTooling)
@@ -222,6 +222,9 @@ fun Project.defaultBuildTemplateForComposeMppLib(
             val jsMain by getting {
                 dependencies {
                     implementation(compose.runtime)
+                    if (withComposeWebCore) implementation(compose.web.core)
+                    @Suppress("DEPRECATION")
+                    if (withComposeWebWidgets) implementation(compose.web.widgets)
                     if (withComposeWebSvg) implementation(compose.web.svg)
                 }
             }
