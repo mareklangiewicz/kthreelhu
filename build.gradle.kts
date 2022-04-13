@@ -13,7 +13,7 @@ plugins {
 }
 
 
-private val kthreelhuBuildFile = rootProjectPath / "build.gradle.kts"
+private val kthreelhuBuildFile = rootProjectPath / "build.gradle.kts" // it's just this file
 
 tasks.registerAllThatGroupFun("inject",
     ::checkTemplates,
@@ -39,8 +39,9 @@ defaultBuildTemplateForComposeMppApp(
     details = libs.Kthreelhu,
     withComposeWebWidgets = true,
 ) {
-    // FIXME: I have to repeat some compose dependencies here in common, because strange issues with web.widgets.
-    // TODO: remove it when I get rid of (deprecated) web.widgets.
+    // TODO: I have to repeat some compose dependencies here in common, because strange issues with web.widgets.
+    //   (web.widgets tried to be "common" and have common modifiers abstractions etc.)
+    //   TD: Remove these three dependencies from here when I get rid of (deprecated) web.widgets.
     implementation(compose.runtime)
     implementation(compose.web.core)
     @Suppress("DEPRECATION")
