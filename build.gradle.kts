@@ -3,11 +3,32 @@ import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import pl.mareklangiewicz.defaults.*
 import pl.mareklangiewicz.deps.*
+import pl.mareklangiewicz.ure.*
+import pl.mareklangiewicz.utils.*
 
 
 plugins {
     kotlin("multiplatform") version vers.kotlinForCompose
     id("org.jetbrains.compose") version vers.composeJb
+}
+
+
+private val kthreelhuBuildFile = rootProjectPath / "build.gradle.kts"
+
+tasks.registerAllThatGroupFun("inject",
+    ::checkTemplates,
+    ::injectTemplates,
+)
+
+fun checkTemplates() {
+    checkKotlinModuleBuildTemplates(kthreelhuBuildFile)
+    checkMppModuleBuildTemplates(kthreelhuBuildFile)
+    checkComposeMppModuleBuildTemplates(kthreelhuBuildFile)
+    checkComposeMppAppBuildTemplates(kthreelhuBuildFile)
+}
+
+fun injectTemplates() {
+
 }
 
 defaultBuildTemplateForComposeMppApp(
