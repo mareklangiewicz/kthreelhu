@@ -28,7 +28,10 @@ fun checkTemplates() {
 }
 
 fun injectTemplates() {
-
+    injectKotlinModuleBuildTemplate(kthreelhuBuildFile)
+    injectMppModuleBuildTemplate(kthreelhuBuildFile)
+    injectComposeMppModuleBuildTemplate(kthreelhuBuildFile)
+    injectComposeMppAppBuildTemplate(kthreelhuBuildFile)
 }
 
 defaultBuildTemplateForComposeMppApp(
