@@ -34,11 +34,6 @@ inline suspend fun <R> withFrame(crossinline onFrame: (frameTime: Duration) -> R
     }
 
 
-val Double.int get() = toInt()
-val Number.int get() = toInt()
-val Int.dbl get() = toDouble()
-val Number.dbl get() = toDouble()
-
 
 infix fun Int.rnd(to: Int) = Random.nextInt(this, to + 1)
 infix fun Double.rnd(to: Double) = Random.nextDouble(this, to)

@@ -2,6 +2,7 @@ package pl.mareklangiewicz.kthreelhu
 
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import pl.mareklangiewicz.umath.*
 import three.js.BoxGeometry
 import three.js.Color
 import three.js.CylinderGeometry

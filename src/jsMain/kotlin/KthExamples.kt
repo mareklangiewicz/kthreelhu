@@ -18,6 +18,7 @@ import org.jetbrains.compose.web.css.width
 import pl.mareklangiewicz.gamepad.Gamepad
 import pl.mareklangiewicz.gamepad.getGamepads
 import pl.mareklangiewicz.gamepad.play
+import pl.mareklangiewicz.umath.*
 import pl.mareklangiewicz.upue.arrOf
 import pl.mareklangiewicz.widgets.CmnDColumn
 import pl.mareklangiewicz.widgets.CmnDProgress
