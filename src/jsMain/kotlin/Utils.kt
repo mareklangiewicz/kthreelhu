@@ -35,16 +35,6 @@ inline suspend fun <R> withFrame(crossinline onFrame: (frameTime: Duration) -> R
 
 
 
-infix fun Int.rnd(to: Int) = Random.nextInt(this, to + 1)
-infix fun Double.rnd(to: Double) = Random.nextDouble(this, to)
-val Int.max get() = 0 rnd this
-val Double.max get() = 0.0 rnd this
-
-fun Int.near(divisor: Int = 6) = this - this / divisor rnd this + this / divisor
-fun Double.near(divisor: Double = 6.0) = this - this / divisor rnd this + this / divisor
-fun Int.around(spread: Int = 6) = this + (-spread rnd spread)
-fun Double.around(spread: Double = 6.0) = this + (-spread rnd spread)
-
 
 data class XY(val x: Double = 0.0, val y: Double = 0.0) {
     override fun toString() = "(${x.str},${y.str})"

@@ -117,11 +117,11 @@ import kotlin.time.ExperimentalTime
         for (x in 1..10) for (y in 1..10)
             KthCube(
                 size = 0.5 xy 0.5 yz remember { 1.0 rnd 3.0 },
-                color = Color(0xffffff.max),
+                color = Color(0 rnd 0xffffff),
                 update = {
                     while (coroutineContext.isActive) withFrame {
                         val t = it.toDouble(MILLISECONDS)
-                        position.set(x.dbl * 0.7, y.dbl * 0.7, (0.00001 + t).max / 400000 * y)
+                        position.set(x.dbl * 0.7, y.dbl * 0.7, (0.00001 rnd t) / 400000 * y)
                     }
                 }
             )
