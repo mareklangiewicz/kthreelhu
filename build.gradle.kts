@@ -8,7 +8,7 @@ import pl.mareklangiewicz.utils.*
 
 
 plugins {
-    kotlin("multiplatform") version vers.kotlinForCompose
+    kotlin("multiplatform") version vers.kotlin
     id("org.jetbrains.compose") version vers.composeJb
 }
 
@@ -55,14 +55,17 @@ defaultBuildTemplateForComposeMppApp(
 kotlin {
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("../UWidgets/uwidgets/src/commonMain/kotlin")
             kotlin.srcDir("../kokpit667/kommon/src/commonMain/kotlin")
             kotlin.srcDir("../kokpit667/widgets/src/commonMain/kotlin")
         }
         val jvmMain by getting {
+            kotlin.srcDir("../UWidgets/uwidgets/src/jvmMain/kotlin")
             kotlin.srcDir("../kokpit667/kommon/src/jvmMain/kotlin")
             kotlin.srcDir("../kokpit667/widgets/src/jvmMain/kotlin")
         }
         val jsMain by getting {
+            kotlin.srcDir("../UWidgets/uwidgets/src/jsMain/kotlin")
             kotlin.srcDir("../kokpit667/kommon/src/jsMain/kotlin")
             kotlin.srcDir("../kokpit667/widgets/src/jsMain/kotlin")
             dependencies {

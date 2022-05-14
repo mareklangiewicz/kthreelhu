@@ -8,7 +8,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.isActive
 import org.w3c.dom.Window
-import pl.mareklangiewicz.kommon.str
+import pl.mareklangiewicz.uformat.*
 import pl.mareklangiewicz.widgets.lerp
 import three.js.Euler
 import three.js.Vector3
