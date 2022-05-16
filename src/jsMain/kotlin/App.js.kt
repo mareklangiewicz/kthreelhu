@@ -22,6 +22,7 @@ import org.jetbrains.compose.web.ui.Styles
 import org.w3c.dom.*
 import pl.mareklangiewicz.kommon.cmnPlatformIsJs
 import pl.mareklangiewicz.kommon.cmnPlatformIsJvm
+import pl.mareklangiewicz.umath.*
 import pl.mareklangiewicz.widgets.CmnDText
 import pl.mareklangiewicz.widgets.kim.GamepadEffect
 import pl.mareklangiewicz.widgets.kim.KeyDownEffect
@@ -59,8 +60,8 @@ fun tryToInstallAppIn(rootElement: Element?) {
 
 @Composable private fun AppContent() {
     val scope = rememberCoroutineScope()
-    var camPos by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
-    var camRot by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
+    var camPos: XYZ by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
+    var camRot: XYZ by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
 
     'f' trigger {
         scope.launch {

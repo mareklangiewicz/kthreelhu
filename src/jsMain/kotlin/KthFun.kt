@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import kotlinx.browser.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.*
+import pl.mareklangiewicz.umath.*
 import three.js.*
 
 

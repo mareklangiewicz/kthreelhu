@@ -44,6 +44,8 @@ defaultBuildTemplateForComposeMppApp(
     //   TD: Remove these three dependencies from here when I get rid of (deprecated) web.widgets.
     implementation(compose.runtime)
     implementation(compose.web.core)
+    implementation(compose.foundation)
+    implementation(compose.ui)
     @Suppress("DEPRECATION")
     implementation(compose.web.widgets)
 
