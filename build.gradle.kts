@@ -42,10 +42,7 @@ defaultBuildTemplateForComposeMppApp(
     // TODO: I have to repeat some compose dependencies here in common, because strange issues with web.widgets.
     //   (web.widgets tried to be "common" and have common modifiers abstractions etc.)
     //   TD: Remove these three dependencies from here when I get rid of (deprecated) web.widgets.
-    implementation(compose.runtime)
     implementation(compose.web.core)
-    implementation(compose.foundation)
-    implementation(compose.ui)
     @Suppress("DEPRECATION")
     implementation(compose.web.widgets)
 
@@ -182,8 +179,8 @@ fun Project.defaultBuildTemplateForComposeMppLib(
     withJs: Boolean = true,
     withNativeLinux64: Boolean = false,
     withKotlinxHtml: Boolean = false,
-    withComposeUi: Boolean = withJvm,
-    withComposeFoundation: Boolean = withJvm,
+    withComposeUi: Boolean = true,
+    withComposeFoundation: Boolean = true,
     withComposeMaterial2: Boolean = withJvm,
     withComposeMaterial3: Boolean = withJvm,
     withComposeMaterialIconsExtended: Boolean = withJvm,
@@ -200,16 +197,22 @@ fun Project.defaultBuildTemplateForComposeMppLib(
     defaultBuildTemplateForMppLib(details, withJvm, withJs, withNativeLinux64, withKotlinxHtml, true, addCommonMainDependencies)
     kotlin {
         sourceSets {
-            val jvmMain by getting {
+            val commonMain by getting {
                 dependencies {
                     implementation(compose.runtime)
                     if (withComposeUi) {
                         implementation(compose.ui)
-                        implementation(compose.uiTooling)
-                        implementation(compose.preview)
                     }
                     if (withComposeFoundation) implementation(compose.foundation)
                     if (withComposeMaterial2) implementation(compose.material)
+                }
+            }
+            val jvmMain by getting {
+                dependencies {
+                    if (withComposeUi) {
+                        implementation(compose.uiTooling)
+                        implementation(compose.preview)
+                    }
                     if (withComposeMaterial3) implementation(compose.material3)
                     if (withComposeMaterialIconsExtended) implementation(compose.materialIconsExtended)
                     if (withComposeFullAnimation) {
@@ -263,8 +266,8 @@ fun Project.defaultBuildTemplateForComposeMppApp(
     withJs: Boolean = true,
     withNativeLinux64: Boolean = false,
     withKotlinxHtml: Boolean = false,
-    withComposeUi: Boolean = withJvm,
-    withComposeFoundation: Boolean = withJvm,
+    withComposeUi: Boolean = true,
+    withComposeFoundation: Boolean = true,
     withComposeMaterial2: Boolean = withJvm,
     withComposeMaterial3: Boolean = withJvm,
     withComposeMaterialIconsExtended: Boolean = withJvm,
