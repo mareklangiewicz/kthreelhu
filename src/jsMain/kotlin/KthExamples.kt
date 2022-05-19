@@ -1,44 +1,24 @@
-@file:OptIn(ExperimentalStdlibApi::class, ExperimentalTime::class)
-@file:Suppress("EXPERIMENTAL_API_USAGE_FUTURE_ERROR")
-
 package pl.mareklangiewicz.kthreelhu
 
 import KthSchool
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import kotlinx.browser.window
-import kotlinx.coroutines.isActive
-import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
-import org.jetbrains.compose.web.css.percent
-import org.jetbrains.compose.web.css.width
-import pl.mareklangiewicz.gamepad.Gamepad
-import pl.mareklangiewicz.gamepad.getGamepads
-import pl.mareklangiewicz.gamepad.play
+import androidx.compose.runtime.*
+import kotlinx.browser.*
+import kotlinx.coroutines.*
+import org.jetbrains.compose.web.css.*
+import pl.mareklangiewicz.gamepad.*
 import pl.mareklangiewicz.umath.*
-import pl.mareklangiewicz.upue.arrOf
-import pl.mareklangiewicz.widgets.CmnDColumn
-import pl.mareklangiewicz.widgets.CmnDProgress
-import pl.mareklangiewicz.widgets.CmnDRow
-import pl.mareklangiewicz.widgets.CmnDText
+import pl.mareklangiewicz.upue.*
+import pl.mareklangiewicz.uwidgets.*
+import pl.mareklangiewicz.widgets.*
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdPadChange
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
-import three.js.AmbientLight
+import three.js.*
 import three.js.Color
-import three.js.DirectionalLight
-import kotlin.coroutines.coroutineContext
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.time.DurationUnit.MILLISECONDS
-import kotlin.time.DurationUnit.SECONDS
-import kotlin.time.ExperimentalTime
+import kotlin.coroutines.*
+import kotlin.math.*
+import kotlin.time.DurationUnit.*
 
-@OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun KthExamples(camPos: XYZ, camRot: XYZ) {
     KthCamera(camPos, camRot) {
         // TODO: maybe use camera.lookAt instead of rotations
@@ -48,7 +28,7 @@ import kotlin.time.ExperimentalTime
         val ex2 by '2'.toggle()
         val ex3 by '3'.toggle()
         val ex4 by '4'.toggle()
-        CmnDText("Example 0 .. 4 - press 0 .. 4 to enable/disable", mono = true)
+        UText("Example 0 .. 4 - press 0 .. 4 to enable/disable", mono = true)
         if (ex0) KthSchool()
         if (ex1) KthScene {
             key(antialias) { // workaround for issue commented for fun KthConfig
@@ -128,7 +108,6 @@ import kotlin.time.ExperimentalTime
     }
 }
 
-@OptIn(ExperimentalComposeWebWidgetsApi::class)
 @Composable fun Example3GamepadsDOM() {
     var gamepads by remember { mutableStateOf(arrOf<Gamepad?>()) }
     EachFrameEffect { gamepads = window.navigator.getGamepads() } // bad because we allocate JsArr..
@@ -144,18 +123,18 @@ import kotlin.time.ExperimentalTime
         for (g in gamepads) g?.vibrationActuator?.reset()
     }
 
-    CmnDColumn {
-        if (gamepads.len == 0) CmnDText("no gamepads detected")
+    UColumn {
+        if (gamepads.len == 0) UBoxedText("no gamepads detected")
         else for (pad in gamepads) if (pad != null) key(pad.id) {
-            CmnDColumn { pad.run {
-                CmnDText("pad: index: $index; id: $id; timestamp: $timestamp")
-                CmnDText("connected:$connected; mapping:$mapping")
-                CmnDText("axes (${axes.size}):", mono = true)
-                CmnDColumn {
+            UColumn { pad.run {
+                UBoxedText("pad: index: $index; id: $id; timestamp: $timestamp")
+                UBoxedText("connected:$connected; mapping:$mapping")
+                UBoxedText("axes (${axes.size}):", mono = true)
+                UColumn {
                     for (axis in axes) CmnDProgress(axis, -1.0, 1.0, bold = abs(axis) > 0.1)
                 }
-                CmnDText("buttons (${buttons.size}):", mono = true)
-                CmnDColumn {
+                UBoxedText("buttons (${buttons.size}):", mono = true)
+                UColumn {
                     for (btn in buttons) {
                         CmnDProgress(btn.value, 0.0, 1.0, bold = btn.touched || btn.pressed)
                     }
