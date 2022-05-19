@@ -1,37 +1,20 @@
-@file:OptIn(ExperimentalComposeWebWidgetsApi::class)
-@file:Suppress("OPT_IN_USAGE")
-
 package pl.mareklangiewicz.kthreelhu
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import kotlinx.browser.document
-import kotlinx.browser.window
+import androidx.compose.runtime.*
+import kotlinx.browser.*
 import kotlinx.coroutines.*
-import org.jetbrains.compose.common.material.Text
-import org.jetbrains.compose.common.ui.ExperimentalComposeWebWidgetsApi
-import org.jetbrains.compose.web.css.Style
-import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.H2
-import org.jetbrains.compose.web.renderComposable
-import org.jetbrains.compose.web.ui.Styles
+import org.jetbrains.compose.web.*
+import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.ui.*
 import org.w3c.dom.*
-import pl.mareklangiewicz.kommon.cmnPlatformIsJs
-import pl.mareklangiewicz.kommon.cmnPlatformIsJvm
+import pl.mareklangiewicz.kommon.*
 import pl.mareklangiewicz.umath.*
-import pl.mareklangiewicz.widgets.CmnDText
-import pl.mareklangiewicz.widgets.kim.GamepadEffect
-import pl.mareklangiewicz.widgets.kim.KeyDownEffect
-import pl.mareklangiewicz.widgets.kim.Kim
+import pl.mareklangiewicz.uwidgets.*
+import pl.mareklangiewicz.widgets.kim.*
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdMouseMove
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
 import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
-import pl.mareklangiewicz.widgets.kim.MouseMoveEffect
-import pl.mareklangiewicz.widgets.kim.MouseWheelEffect
 
 fun main() {
     check(!cmnPlatformIsJvm && cmnPlatformIsJs)
@@ -102,11 +85,9 @@ fun tryToInstallAppIn(rootElement: Element?) {
     }
 
 
-    H2 { Text("Kthreelhu JS") }
-    Div {
-        CmnDText("camPos:$camPos; camRot:$camRot; ts:$ts; tq:$te; tw:$tr tz:$tz", mono = true)
-        KthExamples(camPos, camRot)
-    }
+    H2 { UText("Kthreelhu JS") }
+    UBoxedText("camPos:$camPos; camRot:$camRot; ts:$ts; tq:$te; tw:$tr tz:$tz", mono = true)
+    KthExamples(camPos, camRot)
 }
 
 fun XY.toXYZ(z: Double = 0.0, swapYZ: Boolean = false) = if (swapYZ) x xy z yz y else x xy y yz z
