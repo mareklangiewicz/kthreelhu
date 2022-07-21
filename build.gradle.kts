@@ -8,35 +8,19 @@ import pl.mareklangiewicz.utils.*
 
 
 plugins {
-    kotlin("multiplatform") version vers.kotlin
+    kotlin("multiplatform")
     id("org.jetbrains.compose") version vers.composeJb
 }
 
+tasks.registerAllThatGroupFun("inject", ::checkTemplates, ::injectTemplates)
 
-private val kthreelhuBuildFile = rootProjectPath / "build.gradle.kts" // it's just this file
-
-tasks.registerAllThatGroupFun("inject",
-    ::checkTemplates,
-    ::injectTemplates,
-)
-
-fun checkTemplates() {
-    checkKotlinModuleBuildTemplates(kthreelhuBuildFile)
-    checkMppModuleBuildTemplates(kthreelhuBuildFile)
-    checkComposeMppModuleBuildTemplates(kthreelhuBuildFile)
-    checkComposeMppAppBuildTemplates(kthreelhuBuildFile)
-}
-
-fun injectTemplates() {
-    injectKotlinModuleBuildTemplate(kthreelhuBuildFile)
-    injectMppModuleBuildTemplate(kthreelhuBuildFile)
-    injectComposeMppModuleBuildTemplate(kthreelhuBuildFile)
-    injectComposeMppAppBuildTemplate(kthreelhuBuildFile)
-}
+fun checkTemplates() = checkAllKnownRegionsInProject()
+fun injectTemplates() = injectAllKnownRegionsInProject()
 
 defaultBuildTemplateForComposeMppApp(
     appMainPackage = "pl.mareklangiewicz.kthreelhu",
     details = libs.Kthreelhu,
+    withComposeCompilerFix = true,
     withComposeWebWidgets = true,
 ) {
     // TODO: I have to repeat some compose dependencies here in common, because strange issues with web.widgets.
@@ -76,7 +60,38 @@ kotlin {
     }
 }
 
+
+// Fixes webpack-cli incompatibility by pinning the newest version.
+// https://youtrack.jetbrains.com/issue/KT-52776/KJS-Gradle-Webpack-version-update-despite-yarnlock-breaks-KotlinJS-build
+rootProject.extensions.configure<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension> {
+    versions.webpackCli.version = "4.10.0"
+}
+
 // region [Kotlin Module Build Template]
+
+fun RepositoryHandler.defaultRepos(
+    withMavenLocal: Boolean = false,
+    withMavenCentral: Boolean = true,
+    withGradle: Boolean = false,
+    withGoogle: Boolean = true,
+    withKotlinx: Boolean = true,
+    withKotlinxHtml: Boolean = false,
+    withComposeJbDev: Boolean = false,
+    withComposeCompilerAndroidxDev: Boolean = false,
+    withKtorEap: Boolean = false,
+    withJitpack: Boolean = false,
+) {
+    if (withMavenLocal) mavenLocal()
+    if (withMavenCentral) mavenCentral()
+    if (withGradle) gradlePluginPortal()
+    if (withGoogle) google()
+    if (withKotlinx) maven(repos.kotlinx)
+    if (withKotlinxHtml) maven(repos.kotlinxHtml)
+    if (withComposeJbDev) maven(repos.composeJbDev)
+    if (withComposeCompilerAndroidxDev) maven(repos.composeCompilerAndroidxDev)
+    if (withKtorEap) maven(repos.ktorEap)
+    if (withJitpack) maven(repos.jitpack)
+}
 
 fun TaskCollection<Task>.defaultKotlinCompileOptions(
     jvmTargetVer: String = vers.defaultJvm,
@@ -87,6 +102,76 @@ fun TaskCollection<Task>.defaultKotlinCompileOptions(
         if (requiresOptIn) freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
     }
 }
+
+fun TaskCollection<Task>.defaultTestsOptions(
+    printStandardStreams: Boolean = true,
+    printStackTraces: Boolean = true,
+    onJvmUseJUnitPlatform: Boolean = true,
+) = withType<AbstractTestTask>().configureEach {
+    testLogging {
+        showStandardStreams = printStandardStreams
+        showStackTraces = printStackTraces
+    }
+    if (onJvmUseJUnitPlatform) (this as? Test)?.useJUnitPlatform()
+}
+
+// Provide artifacts information requited by Maven Central
+fun MavenPublication.defaultPOM(lib: LibDetails) = pom {
+    name put lib.name
+    description put lib.description
+    url put lib.githubUrl
+
+    licenses {
+        license {
+            name put lib.licenceName
+            url put lib.licenceUrl
+        }
+    }
+    developers {
+        developer {
+            id put lib.authorId
+            name put lib.authorName
+            email put lib.authorEmail
+        }
+    }
+    scm { url put lib.githubUrl }
+}
+
+/** See also: root project template-mpp: fun Project.defaultSonatypeOssStuffFromSystemEnvs */
+fun Project.defaultSigning(
+    keyId: String = rootExt("signing.keyId"),
+    key: String = rootExt("signing.key"),
+    password: String = rootExt("signing.password"),
+) = extensions.configure<SigningExtension> {
+    useInMemoryPgpKeys(keyId, key, password)
+    sign(extensions.getByType<PublishingExtension>().publications)
+}
+
+fun Project.defaultPublishing(lib: LibDetails, readmeFile: File = File(rootDir, "README.md")) {
+
+    val readmeJavadocJar by tasks.registering(Jar::class) {
+        from(readmeFile) // TODO_maybe: use dokka to create real docs? (but it's not even java..)
+        archiveClassifier put "javadoc"
+    }
+
+    extensions.configure<PublishingExtension> {
+        publications.withType<MavenPublication> {
+            artifact(readmeJavadocJar)
+            // Adding javadoc artifact generates warnings like:
+            // Execution optimizations have been disabled for task ':uspek:signJvmPublication'
+            // It looks like a bug in kotlin multiplatform plugin:
+            // https://youtrack.jetbrains.com/issue/KT-46466
+            // FIXME_someday: Watch the issue.
+            // If it's a bug in kotlin multiplatform then remove this comment when it's fixed.
+            // Some related bug reports:
+            // https://youtrack.jetbrains.com/issue/KT-47936
+            // https://github.com/gradle/gradle/issues/17043
+
+            defaultPOM(lib)
+        }
+    }
+}
+
 
 // endregion [Kotlin Module Build Template]
 
@@ -100,17 +185,36 @@ fun Project.defaultBuildTemplateForMppLib(
     withNativeLinux64: Boolean = false,
     withKotlinxHtml: Boolean = false,
     withComposeJbDevRepo: Boolean = false,
+    withComposeCompilerFix: Boolean = false,
+    withTestJUnit4: Boolean = false,
     withTestJUnit5: Boolean = true,
     withTestUSpekX: Boolean = true,
     addCommonMainDependencies: KotlinDependencyHandler.() -> Unit = {}
 ) {
-    repositories { defaultRepos(withKotlinxHtml = withKotlinxHtml, withComposeJbDev = withComposeJbDevRepo) }
+    repositories {
+        defaultRepos(
+            withKotlinxHtml = withKotlinxHtml,
+            withComposeJbDev = withComposeJbDevRepo,
+            withComposeCompilerAndroidxDev = withComposeCompilerFix,
+        )
+    }
+    if (withComposeCompilerFix) {
+        require(withComposeJbDevRepo) { "Compose compiler fix is available only for compose-jb projects." }
+        configurations.all {
+            resolutionStrategy.dependencySubstitution {
+                substitute(module(deps.composeCompilerJbDev)).apply {
+                    using(module(deps.composeCompilerAndroidxDev))
+                }
+            }
+        }
+    }
     defaultGroupAndVerAndDescription(details)
     kotlin { allDefault(
         withJvm,
         withJs,
         withNativeLinux64,
         withKotlinxHtml,
+        withTestJUnit4,
         withTestJUnit5,
         withTestUSpekX,
         addCommonMainDependencies
@@ -132,6 +236,7 @@ fun KotlinMultiplatformExtension.allDefault(
     withJs: Boolean = true,
     withNativeLinux64: Boolean = false,
     withKotlinxHtml: Boolean = false,
+    withTestJUnit4: Boolean = false,
     withTestJUnit5: Boolean = true,
     withTestUSpekX: Boolean = true,
     addCommonMainDependencies: KotlinDependencyHandler.() -> Unit = {}
@@ -155,7 +260,13 @@ fun KotlinMultiplatformExtension.allDefault(
         if (withJvm) {
             val jvmTest by getting {
                 dependencies {
+                    if (withTestJUnit4) implementation(deps.junit4)
                     if (withTestJUnit5) implementation(deps.junit5engine)
+                    if (withTestUSpekX) {
+                        implementation(deps.uspekx)
+                        if (withTestJUnit4) implementation(deps.uspekxJUnit4)
+                        if (withTestJUnit5) implementation(deps.uspekxJUnit5)
+                    }
                 }
             }
         }
@@ -201,6 +312,7 @@ fun Project.defaultBuildTemplateForComposeMppLib(
     withJs: Boolean = true,
     withNativeLinux64: Boolean = false,
     withKotlinxHtml: Boolean = false,
+    withComposeCompilerFix: Boolean = false,
     withComposeUi: Boolean = true,
     withComposeFoundation: Boolean = true,
     withComposeMaterial2: Boolean = withJvm,
@@ -223,7 +335,9 @@ fun Project.defaultBuildTemplateForComposeMppLib(
         withNativeLinux64 = withNativeLinux64,
         withKotlinxHtml = withKotlinxHtml,
         withComposeJbDevRepo = true,
-        withTestJUnit5 = false, // Unfortunately Compose UI steel uses JUnit4 instead of 5
+        withComposeCompilerFix = withComposeCompilerFix,
+        withTestJUnit4 = withComposeTestUiJUnit4, // Unfortunately Compose UI steel uses JUnit4 instead of 5
+        withTestJUnit5 = false,
         withTestUSpekX = true,
         addCommonMainDependencies = addCommonMainDependencies
     )
@@ -296,6 +410,7 @@ fun Project.defaultBuildTemplateForComposeMppApp(
     withJs: Boolean = true,
     withNativeLinux64: Boolean = false,
     withKotlinxHtml: Boolean = false,
+    withComposeCompilerFix: Boolean = false,
     withComposeUi: Boolean = true,
     withComposeFoundation: Boolean = true,
     withComposeMaterial2: Boolean = withJvm,
@@ -317,6 +432,7 @@ fun Project.defaultBuildTemplateForComposeMppApp(
         withJs = withJs,
         withNativeLinux64 = withNativeLinux64,
         withKotlinxHtml = withKotlinxHtml,
+        withComposeCompilerFix = withComposeCompilerFix,
         withComposeUi = withComposeUi,
         withComposeFoundation = withComposeFoundation,
         withComposeMaterial2 = withComposeMaterial2,
