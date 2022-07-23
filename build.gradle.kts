@@ -21,15 +21,7 @@ defaultBuildTemplateForComposeMppApp(
     appMainPackage = "pl.mareklangiewicz.kthreelhu",
     details = libs.Kthreelhu,
     withComposeCompilerFix = true,
-    withComposeWebWidgets = true,
 ) {
-    // TODO: I have to repeat some compose dependencies here in common, because strange issues with web.widgets.
-    //   (web.widgets tried to be "common" and have common modifiers abstractions etc.)
-    //   TD: Remove these three dependencies from here when I get rid of (deprecated) web.widgets.
-    implementation(compose.web.core)
-    @Suppress("DEPRECATION")
-    implementation(compose.web.widgets)
-
     implementation(deps.kotlinxDateTime)
     implementation(deps.kotlinxCoroutinesCore)
     implementation(deps.upue)

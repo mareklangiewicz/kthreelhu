@@ -4,9 +4,7 @@ import androidx.compose.runtime.*
 import kotlinx.browser.*
 import kotlinx.coroutines.*
 import org.jetbrains.compose.web.*
-import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
-import org.jetbrains.compose.web.ui.*
 import org.w3c.dom.*
 import pl.mareklangiewicz.kommon.*
 import pl.mareklangiewicz.umath.*
@@ -30,7 +28,6 @@ fun tryToInstallAppIn(rootElement: Element?) {
 }
 
 @Composable fun AppJs() {
-    Style(Styles)
     Kim.Area {
         Kim.KeyDownEffect(window)
         Kim.MouseMoveEffect(window)
