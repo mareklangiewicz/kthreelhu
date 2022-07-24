@@ -131,12 +131,12 @@ import kotlin.time.DurationUnit.*
                 UBoxedText("connected:$connected; mapping:$mapping")
                 UBoxedText("axes (${axes.size}):", mono = true)
                 UColumn {
-                    for (axis in axes) CmnDProgress(axis, -1.0, 1.0, bold = abs(axis) > 0.1)
+                    for (axis in axes) UProgress(axis, -1.0, 1.0, bold = abs(axis) > 0.1)
                 }
                 UBoxedText("buttons (${buttons.size}):", mono = true)
                 UColumn {
                     for (btn in buttons) {
-                        CmnDProgress(btn.value, 0.0, 1.0, bold = btn.touched || btn.pressed)
+                        UProgress(btn.value, 0.0, 1.0, bold = btn.touched || btn.pressed)
                     }
                 }
             } }
