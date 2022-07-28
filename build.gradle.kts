@@ -31,15 +31,15 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             kotlin.srcDir("../UWidgets/uwidgets/src/commonMain/kotlin")
-            kotlin.srcDir("../kokpit667/widgets/src/commonMain/kotlin")
+            kotlin.srcDir("../AreaKim/areakim/src/commonMain/kotlin")
         }
         val jvmMain by getting {
             kotlin.srcDir("../UWidgets/uwidgets/src/jvmMain/kotlin")
-            kotlin.srcDir("../kokpit667/widgets/src/jvmMain/kotlin")
+            kotlin.srcDir("../AreaKim/areakim/src/jvmMain/kotlin")
         }
         val jsMain by getting {
             kotlin.srcDir("../UWidgets/uwidgets/src/jsMain/kotlin")
-            kotlin.srcDir("../kokpit667/widgets/src/jsMain/kotlin")
+            kotlin.srcDir("../AreaKim/areakim/src/jsMain/kotlin")
             dependencies {
 //                implementation("ch.viseon.threejs:wrapper:126.0.0")
 //                implementation(npm("three", "0.126.0"))

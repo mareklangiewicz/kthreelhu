@@ -6,13 +6,12 @@ import kotlinx.browser.*
 import kotlinx.coroutines.*
 import org.jetbrains.compose.web.css.*
 import pl.mareklangiewicz.gamepad.*
+import pl.mareklangiewicz.kim.Kim.Companion.cmdPadChange
+import pl.mareklangiewicz.kim.Kim.Companion.toggle
+import pl.mareklangiewicz.kim.Kim.Companion.trigger
 import pl.mareklangiewicz.umath.*
 import pl.mareklangiewicz.upue.*
 import pl.mareklangiewicz.uwidgets.*
-import pl.mareklangiewicz.widgets.*
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdPadChange
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
 import three.js.*
 import three.js.Color
 import kotlin.coroutines.*
@@ -110,7 +109,7 @@ import kotlin.time.DurationUnit.*
 
 @Composable fun Example3GamepadsDOM() {
     var gamepads by remember { mutableStateOf(arrOf<Gamepad?>()) }
-    EachFrameEffect { gamepads = window.navigator.getGamepads() } // bad because we allocate JsArr..
+    EachFrameEffect { gamepads = window.navigator.getGamepads() } // bad because we allocate JsArr.
     cmdPadChange { gamepads = window.navigator.getGamepads() } // not useful because we do it in EachFrameEffect anyway
     'p' trigger {
         for (g in gamepads) g?.vibrationActuator?.play {

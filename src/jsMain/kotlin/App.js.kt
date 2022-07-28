@@ -6,12 +6,12 @@ import kotlinx.coroutines.*
 import org.jetbrains.compose.web.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.*
+import pl.mareklangiewicz.kim.*
+import pl.mareklangiewicz.kim.Kim.Companion.cmdMouseMove
+import pl.mareklangiewicz.kim.Kim.Companion.toggle
+import pl.mareklangiewicz.kim.Kim.Companion.trigger
 import pl.mareklangiewicz.umath.*
 import pl.mareklangiewicz.uwidgets.*
-import pl.mareklangiewicz.widgets.kim.*
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.cmdMouseMove
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
 
 fun main() {
     console.log("Kotlin version: ${KotlinVersion.CURRENT}")
