@@ -3,7 +3,7 @@
 import pl.mareklangiewicz.utils.*
 
 pluginManagement {
-    includeBuild("../deps.kt")
+    includeBuild("../DepsKt")
     repositories {
         google()
         gradlePluginPortal()

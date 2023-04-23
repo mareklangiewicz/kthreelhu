@@ -9,6 +9,7 @@ import pl.mareklangiewicz.gamepad.*
 import pl.mareklangiewicz.kim.Kim.Companion.cmdPadChange
 import pl.mareklangiewicz.kim.Kim.Companion.toggle
 import pl.mareklangiewicz.kim.Kim.Companion.trigger
+import pl.mareklangiewicz.udata.dbl
 import pl.mareklangiewicz.umath.*
 import pl.mareklangiewicz.upue.*
 import pl.mareklangiewicz.uwidgets.*
@@ -123,16 +124,16 @@ import kotlin.time.DurationUnit.*
     }
 
     UColumn {
-        if (gamepads.len == 0) UBoxedText("no gamepads detected")
+        if (gamepads.len == 0) UText("no gamepads detected")
         else for (pad in gamepads) if (pad != null) key(pad.id) {
             UColumn { pad.run {
-                UBoxedText("pad: index: $index; id: $id; timestamp: $timestamp")
-                UBoxedText("connected:$connected; mapping:$mapping")
-                UBoxedText("axes (${axes.size}):", mono = true)
+                UText("pad: index: $index; id: $id; timestamp: $timestamp")
+                UText("connected:$connected; mapping:$mapping")
+                UText("axes (${axes.size}):", mono = true)
                 UColumn {
                     for (axis in axes) UProgress(axis, -1.0, 1.0, bold = abs(axis) > 0.1)
                 }
-                UBoxedText("buttons (${buttons.size}):", mono = true)
+                UText("buttons (${buttons.size}):", mono = true)
                 UColumn {
                     for (btn in buttons) {
                         UProgress(btn.value, 0.0, 1.0, bold = btn.touched || btn.pressed)

@@ -1,10 +1,10 @@
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.ui.window.*
+import pl.mareklangiewicz.kim.*
+import pl.mareklangiewicz.kim.Kim.Companion.trigger
+import pl.mareklangiewicz.kim.Kim.Companion.toggle
 import pl.mareklangiewicz.uwidgets.*
-import pl.mareklangiewicz.widgets.kim.*
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.toggle
-import pl.mareklangiewicz.widgets.kim.Kim.Companion.trigger
 
 fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "Kthreelhu") {
@@ -13,7 +13,7 @@ fun main() = application {
             'b'.toggle()
             'c'.toggle()
             Kim.Frame {
-                UBoxedText("Kthreelhu Desktop")
+                UText("Kthreelhu Desktop")
             }
         }
     }

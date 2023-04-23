@@ -81,7 +81,7 @@ fun tryToInstallAppIn(rootElement: Element?) {
 
 
     H2 { UText("Kthreelhu JS") }
-    UBoxedText("camPos:$camPos; camRot:$camRot; ts:$ts; tq:$te; tw:$tr tz:$tz", mono = true)
+    UText("camPos:$camPos; camRot:$camRot; ts:$ts; tq:$te; tw:$tr tz:$tz", mono = true)
     KthExamples(camPos, camRot)
 }
 
