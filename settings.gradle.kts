@@ -3,7 +3,7 @@
 import pl.mareklangiewicz.utils.*
 
 pluginManagement {
-    includeBuild("../DepsKt")
+//    includeBuild("../DepsKt")
     repositories {
         google()
         gradlePluginPortal()
@@ -13,7 +13,7 @@ pluginManagement {
 }
 
 plugins {
-    id("pl.mareklangiewicz.deps.settings")
+    id("pl.mareklangiewicz.deps.settings") version "0.2.36"
 }
 
 //includeAndSubstituteBuild("../upue", deps.upue, ":upue")
