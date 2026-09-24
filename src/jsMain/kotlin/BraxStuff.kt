@@ -2,6 +2,7 @@ package pl.mareklangiewicz.kthreelhu
 
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import org.w3c.fetch.RequestInit
 import pl.mareklangiewicz.udata.dbl
 import pl.mareklangiewicz.umath.*
 import three.js.BoxGeometry
@@ -23,7 +24,7 @@ import kotlin.math.PI
 import kotlin.math.sqrt
 
 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-suspend fun parseJsonBraxSystem(path: String) = window.fetch(path).await().json().await() as BraxSystem
+suspend fun parseJsonBraxSystem(path: String) = window.fetch(path, RequestInit()).await().json().await() as BraxSystem
 
 val BraxBasicMaterial = MeshPhongMaterial().apply { color = Color(0x665544) }
 val BraxTargetMaterial = MeshPhongMaterial().apply { color = Color(0xff2222) }

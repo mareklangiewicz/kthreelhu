@@ -2,16 +2,10 @@ package pl.mareklangiewicz.kthreelhu
 
 import KthSchool
 import androidx.compose.runtime.*
-import kotlinx.browser.*
 import kotlinx.coroutines.*
 import org.jetbrains.compose.web.css.*
-import pl.mareklangiewicz.gamepad.*
-import pl.mareklangiewicz.kim.Kim.Companion.cmdPadChange
-import pl.mareklangiewicz.kim.Kim.Companion.toggle
-import pl.mareklangiewicz.kim.Kim.Companion.trigger
 import pl.mareklangiewicz.udata.dbl
 import pl.mareklangiewicz.umath.*
-import pl.mareklangiewicz.upue.*
 import pl.mareklangiewicz.uwidgets.*
 import three.js.*
 import three.js.Color
@@ -26,9 +20,7 @@ import kotlin.time.DurationUnit.*
         val ex0 by '0'.toggle(true)
         val ex1 by '1'.toggle()
         val ex2 by '2'.toggle()
-        val ex3 by '3'.toggle()
-        val ex4 by '4'.toggle()
-        UText("Example 0 .. 4 - press 0 .. 4 to enable/disable", mono = true)
+        UText("Example 0 .. 2 - press 0 .. 2 to enable/disable", mono = true)
         if (ex0) KthSchool()
         if (ex1) KthScene {
             key(antialias) { // workaround for issue commented for fun KthConfig
@@ -52,8 +44,6 @@ import kotlin.time.DurationUnit.*
             O3DExampleLights()
             O3DExample2()
         }
-        if (ex3) Example3GamepadsDOM()
-        if (ex4) Example4FlyingGamepad()
     }
 }
 
@@ -107,72 +97,3 @@ import kotlin.time.DurationUnit.*
             )
     }
 }
-
-@Composable fun Example3GamepadsDOM() {
-    var gamepads by remember { mutableStateOf(arrOf<Gamepad?>()) }
-    EachFrameEffect { gamepads = window.navigator.getGamepads() } // bad because we allocate JsArr.
-    cmdPadChange { gamepads = window.navigator.getGamepads() } // not useful because we do it in EachFrameEffect anyway
-    'p' trigger {
-        for (g in gamepads) g?.vibrationActuator?.play {
-            strongMagnitude = 1.0
-            weakMagnitude = 1.0
-            duration = 2000.0
-        }
-    }
-    'R' trigger {
-        for (g in gamepads) g?.vibrationActuator?.reset()
-    }
-
-    UColumn {
-        if (gamepads.len == 0) UText("no gamepads detected")
-        else for (pad in gamepads) if (pad != null) key(pad.id) {
-            UColumn { pad.run {
-                UText("pad: index: $index; id: $id; timestamp: $timestamp")
-                UText("connected:$connected; mapping:$mapping")
-                UText("axes (${axes.size}):", mono = true)
-                UColumn {
-                    for (axis in axes) UProgress(axis, -1.0, 1.0, bold = abs(axis) > 0.1)
-                }
-                UText("buttons (${buttons.size}):", mono = true)
-                UColumn {
-                    for (btn in buttons) {
-                        UProgress(btn.value, 0.0, 1.0, bold = btn.touched || btn.pressed)
-                    }
-                }
-            } }
-        }
-    }
-}
-
-@Composable fun Example4FlyingGamepad() = KthScene {
-
-    var camPos by remember { mutableStateOf(XYZ(0.0, 0.0, 20.0)) }
-    var camRot by remember { mutableStateOf(XYZ(0.0, 0.0, 0.0)) }
-
-    var gamepads by remember { mutableStateOf(arrOf<Gamepad?>()) }
-    EachFrameEffect {
-        gamepads = window.navigator.getGamepads()
-        gamepads.filterNotNull().firstOrNull()?.let {
-            val dx = it.axes[0]
-            val dy = -it.axes[1]
-            val dz = it.buttons[6].value * if (it.buttons[4].pressed) -1 else 1
-            camPos += XYZ(dx, dy, dz)
-
-            val drx = it.axes[2] / 100
-            val dry = it.axes[3] / 100
-            val drz = it.buttons[7].value / 100 * if (it.buttons[5].pressed) -1 else 1
-            camRot += XYZ(dry, drx, drz)
-        }
-    }
-
-    KthCamera(camPos, camRot) {
-        KthCanvas(attrs = { style { width(60.percent) } }) {
-            KthConfig(antialias = false) {
-                Kthreelhu()
-            }
-        }
-    }
-    O3DExampleLights()
-    O3DExample1()
-}
-

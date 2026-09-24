@@ -6,10 +6,6 @@ import kotlinx.coroutines.*
 import org.jetbrains.compose.web.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.*
-import pl.mareklangiewicz.kim.*
-import pl.mareklangiewicz.kim.Kim.Companion.cmdMouseMove
-import pl.mareklangiewicz.kim.Kim.Companion.toggle
-import pl.mareklangiewicz.kim.Kim.Companion.trigger
 import pl.mareklangiewicz.umath.*
 import pl.mareklangiewicz.uwidgets.*
 
@@ -25,14 +21,13 @@ fun tryToInstallAppIn(rootElement: Element?) {
     }
 }
 
-@Composable fun AppJs() {
-    Kim.Area {
-        Kim.KeyDownEffect(window)
-        Kim.MouseMoveEffect(window)
-        Kim.MouseWheelEffect(window)
-        Kim.GamepadEffect(window)
+@Composable fun AppJs() = UWidgetsDom {
+    KthInputArea(window) {
         'q' trigger { window.close() }
-        Kim.Frame { AppContent() }
+        UColumn {
+            KthInputBar()
+            AppContent()
+        }
     }
 }
 
@@ -61,8 +56,8 @@ fun tryToInstallAppIn(rootElement: Element?) {
     lateinit var camRotBackup: XYZ
     var moving = false
     'c' trigger { if (moving) { camPosBackup = camPos; camRotBackup = camRot } }
-    cmdMouseMove {
-        val mousePos = it.x xy it.y
+    onMouseMove { x, y ->
+        val mousePos = x xy y
         if (!moving) mousePosBackup = mousePos
         val mousePosDelta = mousePos - mousePosBackup
         val factor = if (ts) 0.003 else 0.1

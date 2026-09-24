@@ -1,20 +1,13 @@
 package pl.mareklangiewicz.kthreelhu
 
 import androidx.compose.ui.window.*
-import pl.mareklangiewicz.kim.*
-import pl.mareklangiewicz.kim.Kim.Companion.trigger
-import pl.mareklangiewicz.kim.Kim.Companion.toggle
 import pl.mareklangiewicz.uwidgets.*
 
+// Three.js is browser-only, so the desktop app is just a placeholder window for now.
 fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "Kthreelhu") {
-        Kim.Area {
-            'a' trigger { println("a") }
-            'b'.toggle()
-            'c'.toggle()
-            Kim.Frame {
-                UText("Kthreelhu Desktop")
-            }
+        UWidgetsAwt {
+            UText("Kthreelhu Desktop")
         }
     }
 }
