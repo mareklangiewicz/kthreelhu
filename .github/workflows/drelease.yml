@@ -1,0 +1,26 @@
+# This file was generated using a Kotlin DSL.
+# If you want to modify the workflow, please change the Kotlin source and regenerate this YAML file.
+# Generated with https://github.com/typesafegithub/github-workflows-kt
+
+name: 'drelease'
+on:
+  push:
+    tags:
+    - 'v*.*.*'
+jobs:
+  release:
+    runs-on: 'ubuntu-latest'
+    steps:
+    - id: 'step-0'
+      uses: 'actions/checkout@v7'
+    - id: 'step-1'
+      name: 'Set up JDK'
+      uses: 'actions/setup-java@v5'
+      with:
+        java-version: '23'
+        distribution: 'zulu'
+    - id: 'step-2'
+      uses: 'gradle/actions/setup-gradle@v4'
+    - id: 'step-3'
+      name: 'build'
+      run: './gradlew build --no-configuration-cache --no-parallel'
